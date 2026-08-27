@@ -5,7 +5,7 @@ import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
 import { BarangayDashboard } from './components/dashboards/BarangayDashboard';
 import { LguDashboard } from './components/dashboards/LguDashboard';
-import { DilgDashboard } from './components/dashboards/DilgDashboard';
+
 import { TransparencyDashboard } from './components/dashboards/TransparencyDashboard';
 import { CaseList } from './components/cases/CaseList';
 import { CaseDetailModal } from './components/cases/CaseDetailModal';
@@ -14,11 +14,7 @@ import { CreateAccountModal } from './components/auth/CreateAccountModal';
 import { EditAccountModal } from './components/auth/EditAccountModal';
 import { GraphNetworkView } from './components/graph/GraphNetworkView';
 import { GeographicBarangayMap } from './components/graph/GeographicBarangayMap';
-import { PendingCasesRadar } from './components/pending/PendingCasesRadar';
-import { InterAgencyReferralHub } from './components/referrals/InterAgencyReferralHub';
-import { DilgRecommendationsHub } from './components/dilg/DilgRecommendationsHub';
 import { AnnualNarrativeReport } from './components/reports/AnnualNarrativeReport';
-import { AnnualPendingReport } from './components/reports/AnnualPendingReport';
 import { StandardReportsView } from './components/reports/StandardReportsView';
 import { AuditTrailView } from './components/audit/AuditTrailView';
 import { SystemAdminView } from './components/admin/SystemAdminView';
@@ -73,8 +69,7 @@ const AppContent: React.FC = () => {
             return <BarangayDashboard />;
           case 'LGU':
             return <LguDashboard />;
-          case 'DILG':
-            return <DilgDashboard />;
+
           case 'ADMIN':
             return <SystemAdminView />;
           case 'RESIDENT':
@@ -84,22 +79,14 @@ const AppContent: React.FC = () => {
         }
       case 'cases':
         return <CaseList />;
-      case 'pending':
-        return <PendingCasesRadar />;
       case 'graph':
         return <GraphNetworkView />;
       case 'gis_map':
         return <GeographicBarangayMap />;
-      case 'referrals':
-        return <InterAgencyReferralHub />;
-      case 'recommendations':
-        return <DilgRecommendationsHub />;
       case 'transparency':
         return <TransparencyDashboard />;
       case 'annual_narrative':
         return <AnnualNarrativeReport />;
-      case 'annual_pending':
-        return <AnnualPendingReport />;
       case 'standard_reports':
         return <StandardReportsView />;
       case 'audit_trail':

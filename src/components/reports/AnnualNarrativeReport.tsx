@@ -40,13 +40,8 @@ export const AnnualNarrativeReport: React.FC = () => {
       ['Reporting Year', selectedYear],
       ['Total Incidents / Complaints Logged', stats.totalCases],
       ['Resolved / Amicably Settled Cases', stats.totalResolvedCases],
-      ['Closed Cases', stats.totalClosedCases],
-      ['Pending Cases', stats.totalPendingCases],
+      ['Ongoing / Unresolved Cases', stats.totalOngoingCases],
       ['Average Resolution Days', stats.averageResolutionDays],
-      ['Cases Retained at Barangay Level', stats.casesNotReferredToPolice],
-      ['Cases Referred to Police Station (PNP)', stats.totalReferredToPolice],
-      ['Cases Referred to Municipal LGU', stats.totalReferredToLgu],
-      ['Cases Monitored by DILG', stats.totalMonitoredByDilg],
       ['Complaints Involving Officials', stats.casesInvolvingOfficials]
     ];
     exportToCsv(`B-CONNECT_Annual_Narrative_Summary_${selectedYear}`, headers, rows);
@@ -141,10 +136,9 @@ export const AnnualNarrativeReport: React.FC = () => {
           </h3>
           <p className="text-xs text-slate-700 leading-relaxed text-justify">
             During the calendar year {selectedYear}, the Municipality of Roxas recorded a total of{' '}
-            <strong>{stats.totalCases} incidents and formal complaints</strong> across its sixteen (16) component barangays. Through the synchronized multi-agency coordination framework uniting the <strong>Barangay Local Government Units</strong>, the <strong>Roxas Municipal Police Station (PNP)</strong>, the <strong>Municipal Local Government Unit (LGU)</strong>, and the <strong>Department of the Interior and Local Government (DILG)</strong>, local dispute conciliation achieved a settlement rate of{' '}
             <strong>
               {stats.totalCases > 0
-                ? Math.round(((stats.totalResolvedCases + stats.totalClosedCases) / stats.totalCases) * 100)
+                ? Math.round(((stats.totalResolvedCases) / stats.totalCases) * 100)
                 : 0}%
             </strong>.
           </p>
@@ -155,14 +149,14 @@ export const AnnualNarrativeReport: React.FC = () => {
               <span className="text-xl font-extrabold text-slate-900">{stats.totalCases}</span>
             </div>
             <div className="bg-emerald-50 p-2.5 rounded border border-emerald-200 text-center">
-              <span className="text-[10px] uppercase font-bold text-emerald-700 block">Settled / Closed</span>
+              <span className="text-[10px] uppercase font-bold text-emerald-700 block">Settled</span>
               <span className="text-xl font-extrabold text-emerald-800">
-                {stats.totalResolvedCases + stats.totalClosedCases}
+                {stats.totalResolvedCases}
               </span>
             </div>
             <div className="bg-amber-50 p-2.5 rounded border border-amber-200 text-center">
-              <span className="text-[10px] uppercase font-bold text-amber-700 block">Active Pending</span>
-              <span className="text-xl font-extrabold text-amber-800">{stats.totalPendingCases}</span>
+              <span className="text-[10px] uppercase font-bold text-amber-700 block">Ongoing Cases</span>
+              <span className="text-xl font-extrabold text-amber-800">{stats.totalOngoingCases}</span>
             </div>
             <div className="bg-purple-50 p-2.5 rounded border border-purple-200 text-center">
               <span className="text-[10px] uppercase font-bold text-purple-700 block">Avg Duration</span>
@@ -171,41 +165,10 @@ export const AnnualNarrativeReport: React.FC = () => {
           </div>
         </div>
 
-        {/* Section 2: Katarungang Pambarangay & Local Settlement Performance */}
-        <div className="space-y-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1">
-            II. KATARUNGANG PAMBARANGAY (KP) & COMMUNITY LEVEL CONCILIATION
-          </h3>
-          <p className="text-xs text-slate-700 leading-relaxed text-justify">
-            Pursuant to the Local Government Code of 1991 (Republic Act No. 7160), a total of{' '}
-            <strong>{stats.casesNotReferredToPolice} cases</strong> were successfully managed and retained exclusively at the Barangay Hall level without escalation to the regular courts or police blotters. The Lupong Tagapamayapa across the 6 registered barangays (San Aquilino, Bagumbayan, Libertad, Odiong, San Miguel, and Victoria) resolved neighborhood disputes, boundary disagreements, and domestic conflicts amicably.
-          </p>
-        </div>
-
-        {/* Section 3: Police Endorsements & Criminal Inter-Agency Transfer */}
-        <div className="space-y-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1">
-            III. POLICE BLOTTER TRANSFERS & PROSECUTOR ENDORSEMENTS
-          </h3>
-          <p className="text-xs text-slate-700 leading-relaxed text-justify">
-            A total of <strong>{stats.totalReferredToPolice} matters</strong> requiring specialized criminal investigation, medico-legal certification, or inquest proceedings were formally endorsed by Barangay Captains to the <strong>Roxas Municipal Police Station</strong>. These encompassed commercial altercations, physical injury cases, and property disputes exceeding Lupon jurisdiction.
-          </p>
-        </div>
-
-        {/* Section 4: Complaints Involving Public Officials & DILG Neutrality */}
-        <div className="space-y-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1">
-            IV. COMPLAINTS INVOLVING PUBLIC OFFICIALS & DILG OVERSIGHT
-          </h3>
-          <p className="text-xs text-slate-700 leading-relaxed text-justify">
-            During {selectedYear}, <strong>{stats.casesInvolvingOfficials} complaints</strong> involving barangay kagawad, lupon members, or municipal personnel were registered in the system. Under DILG MLGOO protocols, all such records were handled under neutral administrative review without presumed wrongdoing. DILG issued <strong>{stats.totalMonitoredByDilg} compliance advisories and directives</strong> to uphold transparency, prevent conflicts of interest, and guarantee impartial public service.
-          </p>
-        </div>
-
-        {/* Section 5: Narrative Log of Primary Cases */}
+        {/* Section 2: Narrative Log of Primary Cases */}
         <div className="space-y-3 pt-2">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-300 pb-1">
-            V. NARRATIVE DOCKET OF SELECTED CASES & SYSTEMIC OUTCOMES
+            II. NARRATIVE DOCKET OF SELECTED CASES & SYSTEMIC OUTCOMES
           </h3>
 
           <div className="divide-y divide-slate-200">

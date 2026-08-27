@@ -20,7 +20,7 @@ export function buildGraphFromCases(
   const targetCases = (cases || []).filter((c) => {
     if (!c || !c.id) return false;
     if (options.activeOnly) {
-      return c.isPending || (c.status !== 'Resolved' && c.status !== 'Closed' && c.status !== 'Archived');
+      return c.status === 'Unresolved';
     }
     return true;
   });
@@ -90,9 +90,8 @@ export function buildGraphFromCases(
     
     // Case Node
     const caseColor = 
-      c.status === 'Resolved' || c.status === 'Closed' ? '#10b981' :
-      c.isInvolvingOfficial ? '#ef4444' :
-      c.isPending ? '#f59e0b' : '#6366f1';
+      c.status === 'Resolved' ? '#10b981' :
+      c.isInvolvingOfficial ? '#ef4444' : '#6366f1';
 
     addNode({
       id: caseNodeId,
@@ -110,7 +109,6 @@ export function buildGraphFromCases(
         barangay: c.barangay,
         date: c.dateReported,
         isOfficial: c.isInvolvingOfficial,
-        isPending: c.isPending,
         priority: c.priority
       }
     });
@@ -220,11 +218,7 @@ export function buildGraphFromCases(
       }
     }
 
-    // Inter-Agency Edges & LGU Relations
-    if (c.isReferredToLgu || c.currentHandlingAgency?.toLowerCase().includes('municipal')) {
-      addEdge(caseNodeId, 'AGENCY-LGU', 'REFERRED_TO_LGU', 'REFERRED_TO');
-      addEdge(bgyNodeId, 'AGENCY-LGU', 'MUNICIPAL_ENDORSEMENT', 'REFERRED_TO');
-    }
+
 
     // Specific Location Node if distinct
     if (c.specificLocation && typeof c.specificLocation === 'string') {

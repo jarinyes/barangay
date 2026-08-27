@@ -33,40 +33,13 @@ import {
   ROXAS_BARANGAYS, 
   IncidentCategory, 
   PriorityLevel, 
-  IncidentPhoto,
   Case,
   PersonInvolved
 } from '../../types';
 import { formatDate, formatDateShort } from '../../utils/reportGenerators';
 import { StatusBadge, PriorityBadge } from '../common/StatusBadge';
 
-// Preset sample accident & crash photos for demo/testing
-const SAMPLE_EVIDENCE_PHOTOS: Array<{ title: string; url: string; caption: string; category: IncidentCategory }> = [
-  {
-    title: 'Motorcycle vs Motorcycle Collision Scene',
-    url: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&auto=format&fit=crop&q=80',
-    caption: 'Highway collision between two underbone motorcycles showing chassis damage and scattered debris.',
-    category: 'Motorcycle vs Motorcycle Collision'
-  },
-  {
-    title: 'Car & Tricycle Intersection Impact',
-    url: 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=800&auto=format&fit=crop&q=80',
-    caption: 'Side-swipe collision between passenger tricycle and sedan at street junction.',
-    category: 'Motorcycle vs Tricycle Collision'
-  },
-  {
-    title: 'Motorcycle Road Skid on Wet Highway',
-    url: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800&auto=format&fit=crop&q=80',
-    caption: 'Single vehicle motorcycle loss of traction on slippery asphalt curve into roadside ditch.',
-    category: 'Single-Vehicle Road Skid / Fixed Object Crash'
-  },
-  {
-    title: 'Heavy Truck vs Multicab Rear Impact',
-    url: 'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=800&auto=format&fit=crop&q=80',
-    caption: 'Commercial cargo vehicle rear-end impact causing vehicle immobilization on bridge approach.',
-    category: 'Truck / Bus / Heavy Vehicle Crash'
-  }
-];
+
 
 export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' | 'my_reports' | 'directory' }> = ({ initialTab = 'overview' }) => {
   const { 
@@ -98,14 +71,10 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
   const [respondentName, setRespondentName] = useState('');
   const [witnessName, setWitnessName] = useState('');
 
-  // Uploaded Photos State
-  const [photos, setPhotos] = useState<IncidentPhoto[]>([]);
-  const [photoCaptionInput, setPhotoCaptionInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedSuccessCaseId, setSubmittedSuccessCaseId] = useState<string | null>(null);
 
-  // Selected Photo for Fullscreen Zoom Modal
-  const [previewPhoto, setPreviewPhoto] = useState<IncidentPhoto | null>(null);
+
 
   // Search in My Reports
   const [reportSearch, setReportSearch] = useState('');
@@ -129,49 +98,7 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
            c.specificLocation.toLowerCase().includes(q);
   });
 
-  // Handle local photo file upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
 
-    Array.from(files).forEach((file: File, idx: number) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const url = event.target?.result as string;
-        if (url) {
-          const newPhoto: IncidentPhoto = {
-            id: `PHOTO-${Date.now()}-${idx}`,
-            url,
-            caption: photoCaptionInput || file.name,
-            uploadDate: new Date().toISOString(),
-            size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`
-          };
-          setPhotos(prev => [...prev, newPhoto]);
-          setPhotoCaptionInput('');
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  // Add Preset sample photo
-  const handleAddSamplePhoto = (sample: typeof SAMPLE_EVIDENCE_PHOTOS[0]) => {
-    const newPhoto: IncidentPhoto = {
-      id: `PHOTO-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-      url: sample.url,
-      caption: sample.caption,
-      uploadDate: new Date().toISOString(),
-      size: '1.8 MB'
-    };
-    setPhotos(prev => [...prev, newPhoto]);
-    if (!reportTitle) setReportTitle(sample.title);
-    if (!reportCategory) setReportCategory(sample.category);
-    if (!reportNarrative) setReportNarrative(sample.caption);
-  };
-
-  const removePhoto = (photoId: string) => {
-    setPhotos(prev => prev.filter(p => p.id !== photoId));
-  };
 
   // Submit Incident Report Form
   const handleSubmitReport = (e: React.FormEvent) => {
@@ -251,16 +178,6 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
       status: 'Received',
       isCitizenReport: true,
       residentReporterId: currentUser.id,
-      photos: photos,
-      attachments: photos.map((p, i) => ({
-        id: `ATT-RES-${Date.now()}-${i}`,
-        name: `Resident-Photo-Evidence-${i + 1}.jpg`,
-        type: 'image/jpeg',
-        size: p.size || '1.5 MB',
-        uploadDate: new Date().toISOString().split('T')[0],
-        uploadedBy: isAnonymous ? 'Resident Citizen' : currentUser.name,
-        url: p.url
-      })),
       isRemainedAtBarangay: true,
       barangayRetentionReason: isAccidentReport ? 'Emergency first responder dispatch & Lupon desk blotter' : 'Ongoing mediation / Lupon conciliation',
       barangayRetentionNotes: isAccidentReport 
@@ -278,7 +195,6 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
     setReportLocation('');
     setRespondentName('');
     setWitnessName('');
-    setPhotos([]);
     setIsUrgent(false);
 
     triggerNotification(
@@ -648,124 +564,6 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
                 />
               </div>
 
-              {/* 4. PHOTO EVIDENCE UPLOAD SECTION */}
-              <div className="bg-emerald-50/60 border border-emerald-200 rounded-3xl p-5 sm:p-6 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-emerald-200/70 pb-3">
-                  <div>
-                    <h3 className="text-xs sm:text-sm font-black text-emerald-950 flex items-center gap-2">
-                      <Camera className="w-4 h-4 text-emerald-700" />
-                      <span>Photo Evidence & Supporting Documents</span>
-                    </h3>
-                    <p className="text-[11px] text-emerald-800 mt-0.5">
-                      Attach photos of physical damages, obstructions, defects, or scene condition to substantiate the report.
-                    </p>
-                  </div>
-
-                  <span className="text-xs font-bold px-2.5 py-1 bg-white rounded-full text-emerald-800 border border-emerald-300 shadow-2xs self-start">
-                    {photos.length} Photo(s) Attached
-                  </span>
-                </div>
-
-                {/* Upload Action Box */}
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-                  {/* Left: Drag & Drop / File Selector */}
-                  <div className="md:col-span-7">
-                    <label 
-                      htmlFor="input-photo-upload"
-                      className="border-2 border-dashed border-emerald-300 hover:border-emerald-500 bg-white/80 hover:bg-white rounded-2xl p-4 flex flex-col items-center justify-center text-center cursor-pointer transition group min-h-[130px]"
-                    >
-                      <div className="p-3 rounded-full bg-emerald-100 text-emerald-700 group-hover:scale-110 transition">
-                        <Upload className="w-5 h-5" />
-                      </div>
-                      <span className="text-xs font-bold text-slate-800 mt-2 block">
-                        Click to select Photos from your device or camera
-                      </span>
-                      <span className="text-[10px] text-slate-500 mt-0.5">
-                        Accepts JPG, PNG, WEBP (Multiple photos supported)
-                      </span>
-                      <input
-                        id="input-photo-upload"
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        onChange={handleFileUpload}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
-
-                  {/* Right: Quick Demo Sample Presets */}
-                  <div className="md:col-span-5 bg-white rounded-2xl p-3.5 border border-emerald-200/80 space-y-2">
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-950">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                      <span>Attach Sample Evidence Photo (Fast Demo):</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      {SAMPLE_EVIDENCE_PHOTOS.map((s, idx) => (
-                        <button
-                          key={idx}
-                          type="button"
-                          onClick={() => handleAddSamplePhoto(s)}
-                          className="p-1.5 text-left rounded-xl border border-slate-200 hover:border-emerald-500 bg-slate-50 hover:bg-emerald-50 transition cursor-pointer text-[10px] flex items-center gap-1.5"
-                        >
-                          <img src={s.url} alt={s.title} className="w-7 h-7 rounded-lg object-cover flex-shrink-0" />
-                          <span className="font-bold text-slate-700 truncate">{s.title}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Uploaded Photos Gallery Preview */}
-                {photos.length > 0 && (
-                  <div className="space-y-2 pt-2">
-                    <span className="text-xs font-bold text-emerald-950 block">
-                      Attached Evidence Photos:
-                    </span>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {photos.map((photo) => (
-                        <div 
-                          key={photo.id} 
-                          className="relative group rounded-2xl overflow-hidden border border-emerald-300 bg-white shadow-xs"
-                        >
-                          <img 
-                            src={photo.url} 
-                            alt={photo.caption || 'Incident Evidence'} 
-                            className="w-full h-28 object-cover group-hover:scale-105 transition duration-300"
-                          />
-                          <div className="p-2 bg-white">
-                            <p className="text-[10px] text-slate-700 font-medium truncate" title={photo.caption}>
-                              {photo.caption || 'Photo Evidence'}
-                            </p>
-                            <span className="text-[9px] text-slate-400 block">{photo.size || '1.2 MB'}</span>
-                          </div>
-
-                          {/* Hover Actions */}
-                          <div className="absolute top-1.5 right-1.5 flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => setPreviewPhoto(photo)}
-                              className="p-1 rounded-full bg-black/60 hover:bg-black text-white transition cursor-pointer"
-                              title="Zoom Preview"
-                            >
-                              <Eye className="w-3 h-3" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => removePhoto(photo.id)}
-                              className="p-1 rounded-full bg-rose-600 hover:bg-rose-700 text-white transition cursor-pointer"
-                              title="Remove"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
               {/* 5. Involved Persons & Anonymous Protection */}
               <div className="bg-slate-50 rounded-3xl p-5 sm:p-6 border border-slate-200 space-y-4">
                 <div className="flex items-center justify-between">
@@ -944,7 +742,6 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
             ) : (
               <div className="space-y-4">
                 {filteredMyReports.map((c) => {
-                  const hasPhotos = c.photos && c.photos.length > 0;
                   const isResolved = c.status === 'Resolved' || c.status === 'Closed';
 
                   return (
@@ -959,12 +756,6 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
                           </span>
                           <StatusBadge status={c.status} />
                           <PriorityBadge priority={c.priority} />
-                          {hasPhotos && (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full">
-                              <Camera className="w-3 h-3" />
-                              <span>{c.photos?.length} Photo(s) Attached</span>
-                            </span>
-                          )}
                         </div>
 
                         <span className="text-[11px] text-slate-500 flex items-center gap-1">
@@ -981,25 +772,6 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
                           {c.initialNarrative}
                         </p>
                       </div>
-
-                      {/* Photo evidence preview strip */}
-                      {hasPhotos && (
-                        <div className="flex items-center gap-2 pt-1 overflow-x-auto">
-                          {c.photos?.map((photo) => (
-                            <button
-                              key={photo.id}
-                              type="button"
-                              onClick={() => setPreviewPhoto(photo)}
-                              className="relative rounded-xl overflow-hidden border border-slate-200 hover:border-emerald-500 transition group flex-shrink-0 cursor-pointer"
-                            >
-                              <img src={photo.url} alt="Evidence thumbnail" className="w-16 h-16 object-cover" />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white">
-                                <Eye className="w-4 h-4" />
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      )}
 
                       {/* Status Progress Milestones */}
                       <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200/80 space-y-2">
@@ -1314,39 +1086,7 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
         </div>
       )}
 
-      {/* ----------------- FULLSCREEN IMAGE PREVIEW MODAL ----------------- */}
-      {previewPhoto && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="relative max-w-3xl w-full bg-slate-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 text-white space-y-3 p-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <div className="flex items-center gap-2">
-                <Camera className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs font-bold">{previewPhoto.caption || 'Photo Evidence'}</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setPreviewPhoto(null)}
-                className="p-1.5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            <div className="max-h-[70vh] overflow-hidden flex items-center justify-center bg-black rounded-2xl">
-              <img 
-                src={previewPhoto.url} 
-                alt={previewPhoto.caption || 'Photo Evidence'} 
-                className="max-h-[68vh] w-auto max-w-full object-contain"
-              />
-            </div>
-
-            <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
-              <span>Uploaded: {formatDate(previewPhoto.uploadDate)}</span>
-              <span>File Size: {previewPhoto.size || '1.5 MB'}</span>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
   );

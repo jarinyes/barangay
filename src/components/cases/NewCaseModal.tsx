@@ -82,7 +82,7 @@ export const NewCaseModal: React.FC = () => {
   const [witnessName, setWitnessName] = useState('');
 
   // Routing
-  const [routingType, setRoutingType] = useState<'BARANGAY' | 'POLICE' | 'LGU' | 'DILG'>('BARANGAY');
+  const [routingType, setRoutingType] = useState<'BARANGAY' | 'POLICE' | 'LGU'>('BARANGAY');
 
   if (!isNewCaseModalOpen) return null;
 
@@ -161,21 +161,8 @@ export const NewCaseModal: React.FC = () => {
 
     const isReferredToPolice = routingType === 'POLICE';
     const isReferredToLgu = routingType === 'LGU';
-    const isMonitoredByDilg = routingType === 'DILG' || isRespondentOfficial;
     const isRemainedAtBarangay = routingType === 'BARANGAY';
-
-    let initialStatus: CaseStatus = 'Under Initial Assessment';
-    if (injuriesCount > 0 || casualtiesCount > 0 || isHitAndRun) {
-      initialStatus = 'Under Investigation';
-    } else if (isReferredToPolice) {
-      initialStatus = 'Referred to Police Station';
-    } else if (isReferredToLgu) {
-      initialStatus = 'Referred to LGU';
-    } else if (isMonitoredByDilg) {
-      initialStatus = 'For DILG Monitoring';
-    } else {
-      initialStatus = 'For Barangay Action';
-    }
+    let initialStatus: CaseStatus = 'Unresolved';
 
     createCase({
       title: title.trim(),
@@ -211,8 +198,7 @@ export const NewCaseModal: React.FC = () => {
       officialInvolvedType: isRespondentOfficial ? 'Local Government Personnel' : undefined,
       isRemainedAtBarangay,
       isReferredToPolice,
-      isReferredToLgu,
-      isMonitoredByDilg
+      isReferredToLgu
     });
 
     setIsNewCaseModalOpen(false);
@@ -797,17 +783,7 @@ export const NewCaseModal: React.FC = () => {
                   <span>Police Traffic Investigation</span>
                 </label>
 
-                <label className={`p-2.5 rounded-xl border cursor-pointer flex items-center space-x-2 text-xs transition ${
-                  routingType === 'DILG' ? 'bg-amber-50 border-amber-500 font-bold text-amber-900 shadow-2xs' : 'bg-white border-slate-200 text-slate-700'
-                }`}>
-                  <input
-                    type="radio"
-                    name="routing"
-                    checked={routingType === 'DILG'}
-                    onChange={() => setRoutingType('DILG')}
-                  />
-                  <span>LGU Executive Oversight</span>
-                </label>
+
               </div>
             </div>
           </div>

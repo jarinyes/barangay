@@ -35,13 +35,7 @@ export const Sidebar: React.FC = () => {
   } = useApp();
 
   const safeCases = cases || [];
-  const pendingCount = safeCases.filter((c) => c.isPending || c.status === 'Pending').length;
-  const overdueCount = safeCases.filter((c) => (c.isPending || c.status === 'Pending') && c.daysPending > 30).length;
   const officialComplaintsCount = safeCases.filter((c) => c.isInvolvingOfficial).length;
-  
-  const pendingLguRecsCount = safeCases.reduce((acc, c) => {
-    return acc + (c.dilgRecommendations?.filter((r) => r.status === 'Awaiting Agency Response' || r.status === 'Overdue').length || 0);
-  }, 0);
 
   const isBarangay = currentUser.agencyType === 'BARANGAY';
   const isLgu = currentUser.agencyType === 'LGU';
@@ -95,8 +89,6 @@ export const Sidebar: React.FC = () => {
     if (isBarangay) {
       const brgyName = currentUser.barangay || 'San Aquilino';
       const brgyCases = safeCases.filter(c => c.barangay === brgyName || c.originatingAgency.includes(brgyName));
-      const brgyPending = brgyCases.filter(c => c.isPending || c.status === 'Pending').length;
-      const brgyOverdue = brgyCases.filter(c => (c.isPending || c.status === 'Pending') && c.daysPending > 30).length;
 
       return [
         {
@@ -113,33 +105,10 @@ export const Sidebar: React.FC = () => {
           badge: brgyCases.length
         },
         {
-          id: 'pending',
-          label: 'Pending & Mediation Tracker',
-          subtitle: 'KP Mediation Timelines',
-          icon: <Clock className="w-4 h-4" />,
-          badge: brgyPending,
-          badgeColor: brgyOverdue > 0 ? 'bg-rose-500 text-white' : 'bg-amber-100 text-amber-900',
-          urgentAlert: brgyOverdue > 0 ? `${brgyOverdue} Overdue` : undefined
-        },
-        {
-          id: 'referrals',
-          label: 'Inter-Agency Referrals',
-          subtitle: 'Endorse to LGU / MSWDO',
-          icon: <ArrowRightLeft className="w-4 h-4" />
-        },
-        {
           id: 'gis_map',
           label: 'Barangay GIS Map',
           subtitle: `Territory of ${brgyName}`,
           icon: <Compass className="w-4 h-4" />
-        },
-        {
-          id: 'recommendations',
-          label: 'LGU Advisories & Directives',
-          subtitle: 'Compliance & Governance',
-          icon: <FileCheck2 className="w-4 h-4" />,
-          badge: pendingLguRecsCount > 0 ? pendingLguRecsCount : undefined,
-          badgeColor: 'bg-emerald-600 text-white'
         },
         {
           type: 'header',
@@ -150,12 +119,6 @@ export const Sidebar: React.FC = () => {
           label: 'Annual Case Narrative',
           subtitle: 'Barangay KP Report Form',
           icon: <BookOpenCheck className="w-4 h-4" />
-        },
-        {
-          id: 'annual_pending',
-          label: 'Pending Cases Breakdown',
-          subtitle: 'LGU Submission Summary',
-          icon: <FilePieChart className="w-4 h-4" />
         }
       ];
     }
@@ -174,29 +137,6 @@ export const Sidebar: React.FC = () => {
         subtitle: 'All 6 Barangays Overview',
         icon: <FileSpreadsheet className="w-4 h-4" />,
         badge: safeCases.length
-      },
-      {
-        id: 'pending',
-        label: 'Delay Diagnostic Radar',
-        subtitle: 'Pending Cases & Bottlenecks',
-        icon: <Clock className="w-4 h-4" />,
-        badge: pendingCount,
-        badgeColor: overdueCount > 0 ? 'bg-rose-500 text-white' : 'bg-amber-100 text-amber-900',
-        urgentAlert: overdueCount > 0 ? `${overdueCount} Overdue` : undefined
-      },
-      {
-        id: 'recommendations',
-        label: 'LGU Directives & Compliance',
-        subtitle: 'Executive Orders & Oversight',
-        icon: <FileCheck2 className="w-4 h-4" />,
-        badge: pendingLguRecsCount > 0 ? pendingLguRecsCount : undefined,
-        badgeColor: 'bg-emerald-600 text-white'
-      },
-      {
-        id: 'referrals',
-        label: 'Inter-Agency Referral Hub',
-        subtitle: 'MSWDO, Legal & Executive',
-        icon: <ArrowRightLeft className="w-4 h-4" />
       },
       {
         id: 'gis_map',
@@ -226,12 +166,6 @@ export const Sidebar: React.FC = () => {
         label: 'Annual Case Narrative',
         subtitle: 'Yearly Summaries & Outcomes',
         icon: <BookOpenCheck className="w-4 h-4" />
-      },
-      {
-        id: 'annual_pending',
-        label: 'Annual Pending Report',
-        subtitle: 'Municipal Delay Analysis',
-        icon: <FilePieChart className="w-4 h-4" />
       },
       {
         id: 'standard_reports',

@@ -5,9 +5,6 @@ import {
   AuditLog, 
   NotificationItem, 
   CaseStatus, 
-  PendingReason, 
-  CaseReferral, 
-  DilgRecommendation, 
   TimelineEvent, 
   GraphNode, 
   GraphEdge, 
@@ -69,13 +66,6 @@ interface AppContextType {
   // Operations
   createCase: (newCase: Partial<Case>) => string;
   updateCaseStatus: (caseId: string, newStatus: CaseStatus, reason: string, remarks?: string) => void;
-  updatePendingReason: (caseId: string, pendingReason: PendingReason, pendingExplanation: string, requiredNextAction?: string) => void;
-  referCase: (caseId: string, targetAgency: string, reason: string, docsTransferred: string[]) => void;
-  acceptReferral: (caseId: string, referralId: string, blotterOrCaseNo?: string, notes?: string) => void;
-  issueDilgRecommendation: (recData: Omit<DilgRecommendation, 'id' | 'date' | 'status'>) => void;
-  respondToDilgRecommendation: (caseId: string, recId: string, responseText: string) => void;
-  completeDilgRecommendation: (caseId: string, recId: string, complianceRemarks?: string) => void;
-  addCaseAttachment: (caseId: string, file: { name: string; size: string; type: string }) => void;
   addCaseTimelineEvent: (caseId: string, title: string, description: string, stage: TimelineEvent['stage']) => void;
   triggerNotification: (
     title: string, 
@@ -126,30 +116,11 @@ const sanitizeCaseBarangay = (rawCase: any): Case => {
   return {
     ...rawCase,
     barangay: b,
-    timeline: Array.isArray(rawCase.timeline) ? rawCase.timeline : [],
-    referrals: Array.isArray(rawCase.referrals) ? rawCase.referrals : [],
-    dilgRecommendations: Array.isArray(rawCase.dilgRecommendations) ? rawCase.dilgRecommendations : [],
-    complainants: Array.isArray(rawCase.complainants) ? rawCase.complainants.map((p: any) => ({
-      ...p,
-      barangay: VALID_6_BARANGAYS.includes(p.barangay) ? p.barangay : b
-    })) : [],
-    respondents: Array.isArray(rawCase.respondents) ? rawCase.respondents.map((p: any) => ({
-      ...p,
-      barangay: VALID_6_BARANGAYS.includes(p.barangay) ? p.barangay : b
-    })) : [],
-    witnesses: Array.isArray(rawCase.witnesses) ? rawCase.witnesses.map((p: any) => ({
-      ...p,
-      barangay: VALID_6_BARANGAYS.includes(p.barangay) ? p.barangay : b
-    })) : [],
     personsInvolved: Array.isArray(rawCase.personsInvolved) ? rawCase.personsInvolved.map((p: any) => ({
       ...p,
       barangay: VALID_6_BARANGAYS.includes(p.barangay) ? p.barangay : b
     })) : [],
-    attachments: Array.isArray(rawCase.attachments) ? rawCase.attachments : [],
-    statusHistory: Array.isArray(rawCase.statusHistory) ? rawCase.statusHistory : [],
-    daysPending: (rawCase.isPending || rawCase.status === 'Pending') && rawCase.pendingSinceDate 
-      ? calculateDaysDifference(rawCase.pendingSinceDate) 
-      : (typeof rawCase.daysPending === 'number' ? rawCase.daysPending : 0)
+    statusHistory: Array.isArray(rawCase.statusHistory) ? rawCase.statusHistory : []
   };
 };
 
@@ -560,7 +531,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const complaintId = `CMP-${year}-${String(count).padStart(3, '0')}`;
 
     const now = new Date().toISOString();
-    const isPending = data.status === 'Pending' || !!data.pendingReason;
+
 
     const initialTimeline: TimelineEvent[] = [
       {
@@ -617,8 +588,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       isAccidentProneArea: data.isAccidentProneArea ?? isAccident,
       residentReporterId: data.residentReporterId || (currentUser.agencyType === 'RESIDENT' ? currentUser.id : undefined),
       isCitizenReport: !!data.isCitizenReport || currentUser.agencyType === 'RESIDENT',
-      photos: data.photos || [],
-
+      status: data.status || 'Unresolved',
+      
       isInvolvingOfficial: !!data.isInvolvingOfficial,
       officialInvolvedType: data.officialInvolvedType || 'None',
       officialInvolvedName: data.officialInvolvedName,
@@ -630,34 +601,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       assignedPersonnel: data.assignedPersonnel || `${currentUser.name} (${currentUser.position})`,
       assignedPersonnelContact: data.assignedPersonnelContact,
       priority: isAccident ? 'Urgent' : (data.priority || 'Medium'),
-      status: data.status || 'New',
       
-      isReferredToPolice: !!data.isReferredToPolice,
-      policeCaseNo: data.policeCaseNo,
-      blotterEntryNo: data.blotterEntryNo,
-      isReferredToLgu: !!data.isReferredToLgu,
-      lguEndorsementNo: data.lguEndorsementNo,
-      isMonitoredByDilg: !!data.isMonitoredByDilg || !!data.isInvolvingOfficial,
-      dilgMonitoringFlagReason: data.dilgMonitoringFlagReason || (data.isInvolvingOfficial ? 'Case involving public official' : undefined),
-      
-      isRemainedAtBarangay: data.isRemainedAtBarangay !== undefined ? data.isRemainedAtBarangay : !data.isReferredToPolice,
-      barangayRetentionReason: data.barangayRetentionReason,
-      barangayRetentionNotes: data.barangayRetentionNotes,
-      
-      isPending,
-      pendingReason: data.pendingReason,
-      pendingExplanation: data.pendingExplanation,
-      pendingSinceDate: isPending ? (data.pendingSinceDate || now.split('T')[0]) : undefined,
-      daysPending: isPending ? 1 : 0,
-      lastActionTaken: `Initial case registration by ${currentUser.name}`,
-      requiredNextAction: data.requiredNextAction || (isAccident ? 'Immediate Tanod & First Responder dispatch to accident site' : 'Conduct initial assessment / summons issuance'),
-      
-      attachments: data.attachments || [],
       statusHistory: [
         {
           id: `SH-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-          previousStatus: 'New',
-          newStatus: data.status || 'New',
+          previousStatus: 'Unresolved',
+          newStatus: data.status || 'Unresolved',
           reason: 'Initial case creation and registration',
           changedBy: currentUser.name,
           changedByRole: currentUser.position,
@@ -665,8 +614,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           timestamp: now
         }
       ],
-      referrals: data.referrals || [],
-      dilgRecommendations: [],
       timeline: initialTimeline,
       
       dateCreated: now,
@@ -688,7 +635,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       triggerNotification(
         `🚨 VEHICULAR ACCIDENT ALERT: Brgy. ${newCaseItem.barangay}`,
         `URGENT ALARM: Road/vehicular accident reported at ${newCaseItem.specificLocation}. Resident report #${caseId}. Immediate Tanod & First Responder deployment requested!`,
-        'pending_alert',
+        'case_registered',
         caseId,
         'BARANGAY',
         'urgent',
@@ -721,7 +668,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         triggerNotification(
           `New Resident Report in Brgy. ${newCaseItem.barangay}`,
           `Resident submitted Case #${caseId}: "${newCaseItem.title}". Queued for Lupon review.`,
-          'pending_alert',
+          'case_registered',
           caseId,
           'BARANGAY',
           newCaseItem.priority === 'Urgent' ? 'urgent' : 'normal',
@@ -749,19 +696,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     }
 
-    if (newCaseItem.isMonitoredByDilg) {
-      triggerNotification(
-        'Case Flagged for LGU Oversight',
-        `Case #${caseId} involving ${newCaseItem.officialInvolvedPosition || 'Official'} flagged for municipal oversight monitoring.`,
-        'recommendation',
-        caseId,
-        'LGU',
-        'high',
-        {
-          targetAgencyTypes: ['LGU', 'ADMIN']
-        }
-      );
-    }
+
 
     return caseId;
   };
@@ -781,8 +716,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updatedCaseTitle = c.title;
 
         const isNowResolved = newStatus === 'Resolved';
-        const isNowClosed = newStatus === 'Closed';
-        const isNowPending = newStatus === 'Pending' || newStatus.startsWith('Awaiting');
 
         const newStatusItem = {
           id: `SH-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
@@ -801,7 +734,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           caseId,
           title: `Status Changed to: ${newStatus}`,
           description: `${reason}${remarks ? ` - Remarks: ${remarks}` : ''}`,
-          stage: isNowResolved ? 'Resolution' : isNowClosed ? 'Case Closure' : 'Status Update',
+          stage: isNowResolved ? 'Resolution' : 'Status Update',
           actorName: currentUser.name,
           actorRole: currentUser.position,
           actorAgency: currentUser.agencyName,
@@ -811,15 +744,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         return {
           ...c,
           status: newStatus,
-          isPending: isNowPending,
-          pendingSinceDate: isNowPending && !c.pendingSinceDate ? now.split('T')[0] : (isNowPending ? c.pendingSinceDate : undefined),
           dateResolved: isNowResolved ? now : c.dateResolved,
-          dateClosed: isNowClosed ? now : c.dateClosed,
           resolutionSummary: isNowResolved ? (remarks || reason) : c.resolutionSummary,
           dateLastUpdated: now,
           statusHistory: [newStatusItem, ...c.statusHistory],
           timeline: [...c.timeline, newTimelineEvent],
-          lastActionTaken: `Status updated to ${newStatus}: ${reason}`
         };
       })
     );
@@ -840,377 +769,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
   };
 
-  const updatePendingReason = (
-    caseId: string, 
-    pendingReason: PendingReason, 
-    pendingExplanation: string, 
-    requiredNextAction?: string
-  ) => {
-    const now = new Date().toISOString();
 
-    setCases((prev) =>
-      prev.map((c) => {
-        if (c.id !== caseId) return c;
-
-        const newTimelineEvent: TimelineEvent = {
-          id: `TL-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-          caseId,
-          title: `Pending Reason Updated: ${pendingReason}`,
-          description: pendingExplanation,
-          stage: 'Status Update',
-          actorName: currentUser.name,
-          actorRole: currentUser.position,
-          actorAgency: currentUser.agencyName,
-          timestamp: now
-        };
-
-        return {
-          ...c,
-          isPending: true,
-          status: c.status === 'Resolved' || c.status === 'Closed' ? 'Pending' : c.status,
-          pendingReason,
-          pendingExplanation,
-          pendingSinceDate: c.pendingSinceDate || now.split('T')[0],
-          daysPending: c.pendingSinceDate ? calculateDaysDifference(c.pendingSinceDate) : 1,
-          requiredNextAction: requiredNextAction || c.requiredNextAction,
-          dateLastUpdated: now,
-          timeline: [...c.timeline, newTimelineEvent]
-        };
-      })
-    );
-
-    logActivity(
-      'PENDING_REASON_RECORDED',
-      caseId,
-      `Recorded pending reason for Case #${caseId}: "${pendingReason}". Explanation: ${pendingExplanation}`
-    );
-
-    triggerNotification(
-      `Pending Explanation Updated (#${caseId})`,
-      `Pending reason logged: "${pendingReason}" by ${currentUser.name}.`,
-      'pending_alert',
-      caseId
-    );
-  };
-
-  const referCase = (
-    caseId: string, 
-    targetAgency: string, 
-    reason: string, 
-    docsTransferred: string[]
-  ) => {
-    const now = new Date().toISOString();
-    const isPolice = targetAgency.toLowerCase().includes('police') || targetAgency === 'POLICE_STATION';
-    const isLgu = targetAgency.toLowerCase().includes('lgu') || targetAgency === 'LGU_MUNICIPAL';
-    const isDilg = targetAgency.toLowerCase().includes('dilg') || targetAgency === 'DILG_ROXAS';
-
-    const newReferral: CaseReferral = {
-      id: `REF-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-      caseId,
-      referringAgency: currentUser.agencyName,
-      referringOfficer: `${currentUser.name} (${currentUser.position})`,
-      receivingAgency: targetAgency,
-      referralReason: reason,
-      dateReferred: now,
-      documentsTransferred: docsTransferred,
-      status: 'Pending Receipt'
-    };
-
-    setCases((prev) =>
-      prev.map((c) => {
-        if (c.id !== caseId) return c;
-
-        const newTimelineEvent: TimelineEvent = {
-          id: `TL-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-          caseId,
-          title: `Inter-Agency Referral Sent to ${targetAgency}`,
-          description: `Referral Reason: ${reason}. Documents transmitted: ${docsTransferred.join(', ') || 'Case Docket'}.`,
-          stage: 'Referral Sent',
-          actorName: currentUser.name,
-          actorRole: currentUser.position,
-          actorAgency: currentUser.agencyName,
-          timestamp: now
-        };
-
-        return {
-          ...c,
-          isReferredToPolice: isPolice ? true : c.isReferredToPolice,
-          isReferredToLgu: isLgu ? true : c.isReferredToLgu,
-          isMonitoredByDilg: isDilg ? true : c.isMonitoredByDilg,
-          isRemainedAtBarangay: false,
-          currentHandlingAgency: targetAgency,
-          status: isPolice ? 'Referred to Police Station' : isLgu ? 'Referred to LGU' : 'For DILG Monitoring',
-          referrals: [newReferral, ...c.referrals],
-          timeline: [...c.timeline, newTimelineEvent],
-          dateLastUpdated: now
-        };
-      })
-    );
-
-    logActivity(
-      'CASE_REFERRED',
-      caseId,
-      `${currentUser.agencyName} referred Case #${caseId} to ${targetAgency}. Reason: ${reason}`
-    );
-
-    triggerNotification(
-      `New Case Referral Received (#${caseId})`,
-      `${currentUser.agencyName} endorsed Case #${caseId} to ${targetAgency} for action.`,
-      'referral',
-      caseId,
-      isPolice ? 'POLICE' : isLgu ? 'LGU' : 'DILG',
-      'high'
-    );
-  };
-
-  const acceptReferral = (
-    caseId: string, 
-    referralId: string, 
-    blotterOrCaseNo?: string, 
-    notes?: string
-  ) => {
-    const now = new Date().toISOString();
-
-    setCases((prev) =>
-      prev.map((c) => {
-        if (c.id !== caseId) return c;
-
-        const updatedReferrals = c.referrals.map((r) => {
-          if (r.id === referralId) {
-            return {
-              ...r,
-              status: 'Received' as const,
-              receivingOfficer: `${currentUser.name} (${currentUser.position})`,
-              dateReceived: now,
-              responseAction: notes || `Received and docketed under ${blotterOrCaseNo || 'Official Blotter'}.`
-            };
-          }
-          return r;
-        });
-
-        const newTimelineEvent: TimelineEvent = {
-          id: `TL-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-          caseId,
-          title: `Referral Acknowledged & Docketed by ${currentUser.agencyName}`,
-          description: `Received by ${currentUser.name}. ${blotterOrCaseNo ? `Blotter/Case No: ${blotterOrCaseNo}. ` : ''}${notes || ''}`,
-          stage: currentUser.agencyType === 'POLICE' ? 'Police Action' : currentUser.agencyType === 'LGU' ? 'LGU Action' : 'Referral Received',
-          actorName: currentUser.name,
-          actorRole: currentUser.position,
-          actorAgency: currentUser.agencyName,
-          timestamp: now
-        };
-
-        return {
-          ...c,
-          status: 'Received',
-          policeCaseNo: currentUser.agencyType === 'POLICE' && blotterOrCaseNo ? blotterOrCaseNo : c.policeCaseNo,
-          blotterEntryNo: currentUser.agencyType === 'POLICE' && blotterOrCaseNo ? blotterOrCaseNo : c.blotterEntryNo,
-          currentHandlingAgency: currentUser.agencyName,
-          assignedPersonnel: `${currentUser.name} (${currentUser.position})`,
-          referrals: updatedReferrals,
-          timeline: [...c.timeline, newTimelineEvent],
-          dateLastUpdated: now
-        };
-      })
-    );
-
-    logActivity(
-      'REFERRAL_ACCEPTED',
-      caseId,
-      `${currentUser.name} (${currentUser.agencyName}) accepted referral for Case #${caseId}.`
-    );
-  };
-
-  const issueDilgRecommendation = (
-    recData: Omit<DilgRecommendation, 'id' | 'date' | 'status'>
-  ) => {
-    const now = new Date().toISOString();
-    const recId = `REC-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 900) + 100)}`;
-
-    const newRecommendation: DilgRecommendation = {
-      id: recId,
-      ...recData,
-      date: now,
-      status: 'Awaiting Agency Response'
-    };
-
-    setCases((prev) =>
-      prev.map((c) => {
-        if (c.id !== recData.caseId) return c;
-
-        const newTimelineEvent: TimelineEvent = {
-          id: `TL-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-          caseId: c.id,
-          title: `DILG Recommendation Issued (${recData.recommendationType})`,
-          description: `${recData.detailedRecommendation} (Target: ${recData.targetAgency}, Deadline: ${recData.responseDeadline})`,
-          stage: 'Recommendation Issued',
-          actorName: currentUser.name,
-          actorRole: currentUser.position,
-          actorAgency: currentUser.agencyName,
-          timestamp: now
-        };
-
-        return {
-          ...c,
-          isMonitoredByDilg: true,
-          dilgRecommendations: [newRecommendation, ...c.dilgRecommendations],
-          timeline: [...c.timeline, newTimelineEvent],
-          dateLastUpdated: now
-        };
-      })
-    );
-
-    logActivity(
-      'DILG_RECOMMENDATION_ISSUED',
-      recData.caseId,
-      `DILG issued recommendation ${recId} (${recData.recommendationType}) to ${recData.targetAgency}.`
-    );
-
-    triggerNotification(
-      `New DILG Recommendation Issued (#${recData.caseId})`,
-      `DILG MLGOO issued recommendation "${recData.recommendationType}" with deadline ${recData.responseDeadline}.`,
-      'recommendation',
-      recData.caseId,
-      recData.targetAgency,
-      'high'
-    );
-  };
-
-  const respondToDilgRecommendation = (
-    caseId: string, 
-    recId: string, 
-    responseText: string
-  ) => {
-    const now = new Date().toISOString();
-
-    setCases((prev) =>
-      prev.map((c) => {
-        if (c.id !== caseId) return c;
-
-        const updatedRecs = c.dilgRecommendations.map((r) => {
-          if (r.id === recId) {
-            return {
-              ...r,
-              status: 'Action In Progress' as const,
-              agencyResponse: responseText,
-              agencyActionOfficer: `${currentUser.name} (${currentUser.position})`,
-              dateResponseSubmitted: now
-            };
-          }
-          return r;
-        });
-
-        const newTimelineEvent: TimelineEvent = {
-          id: `TL-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-          caseId,
-          title: `Agency Action Recorded for DILG Rec #${recId}`,
-          description: `Action Taken: ${responseText}`,
-          stage: 'Response Recorded',
-          actorName: currentUser.name,
-          actorRole: currentUser.position,
-          actorAgency: currentUser.agencyName,
-          timestamp: now
-        };
-
-        return {
-          ...c,
-          dilgRecommendations: updatedRecs,
-          timeline: [...c.timeline, newTimelineEvent],
-          dateLastUpdated: now
-        };
-      })
-    );
-
-    logActivity(
-      'DILG_RESPONSE_SUBMITTED',
-      caseId,
-      `${currentUser.agencyName} submitted compliance action for Recommendation #${recId}.`
-    );
-
-    triggerNotification(
-      `Compliance Response Submitted (#${caseId})`,
-      `${currentUser.agencyName} responded to Recommendation #${recId}.`,
-      'recommendation',
-      caseId,
-      'DILG'
-    );
-  };
-
-  const completeDilgRecommendation = (
-    caseId: string, 
-    recId: string, 
-    complianceRemarks?: string
-  ) => {
-    const now = new Date().toISOString();
-
-    setCases((prev) =>
-      prev.map((c) => {
-        if (c.id !== caseId) return c;
-
-        const updatedRecs = c.dilgRecommendations.map((r) => {
-          if (r.id === recId) {
-            return {
-              ...r,
-              status: 'Completed' as const,
-              dateCompleted: now,
-              complianceRemarks: complianceRemarks || 'DILG verified full administrative compliance.'
-            };
-          }
-          return r;
-        });
-
-        const newTimelineEvent: TimelineEvent = {
-          id: `TL-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-          caseId,
-          title: `DILG Recommendation Closed & Verified (#${recId})`,
-          description: complianceRemarks || 'DILG MLGOO confirmed satisfactory compliance and closed recommendation.',
-          stage: 'DILG Monitoring',
-          actorName: currentUser.name,
-          actorRole: currentUser.position,
-          actorAgency: currentUser.agencyName,
-          timestamp: now
-        };
-
-        return {
-          ...c,
-          dilgRecommendations: updatedRecs,
-          timeline: [...c.timeline, newTimelineEvent],
-          dateLastUpdated: now
-        };
-      })
-    );
-
-    logActivity(
-      'DILG_RECOMMENDATION_COMPLETED',
-      caseId,
-      `DILG Officer ${currentUser.name} marked Recommendation #${recId} as Completed.`
-    );
-  };
-
-  const addCaseAttachment = (caseId: string, file: { name: string; size: string; type: string }) => {
-    const now = new Date().toISOString();
-    const newAtt = {
-      id: `ATT-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      uploadDate: now.split('T')[0],
-      uploadedBy: `${currentUser.name} (${currentUser.agencyName})`
-    };
-
-    setCases((prev) =>
-      prev.map((c) => {
-        if (c.id !== caseId) return c;
-        return {
-          ...c,
-          attachments: [newAtt, ...c.attachments],
-          dateLastUpdated: now
-        };
-      })
-    );
-
-    logActivity('DOCUMENT_ATTACHED', caseId, `Uploaded document "${file.name}" to Case #${caseId}`);
-  };
 
   const addCaseTimelineEvent = (
     caseId: string, 
@@ -1316,13 +875,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setFilterAgency,
         createCase,
         updateCaseStatus,
-        updatePendingReason,
-        referCase,
-        acceptReferral,
-        issueDilgRecommendation,
-        respondToDilgRecommendation,
-        completeDilgRecommendation,
-        addCaseAttachment,
         addCaseTimelineEvent,
         triggerNotification,
         markNotificationAsRead,

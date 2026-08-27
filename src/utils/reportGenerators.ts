@@ -80,51 +80,15 @@ export function generateAnnualStatistics(cases: Case[], year: number): AnnualSta
 
     // Status counts
     if (c.status === 'Resolved') totalResolvedCases++;
-    else if (c.status === 'Closed') totalClosedCases++;
-    else if (c.status === 'Pending' || c.isPending) {
-      totalPendingCases++;
-      const reason = c.pendingReason || 'Awaiting investigation';
-      pendingByReason[reason] = (pendingByReason[reason] || 0) + 1;
-    } else {
-      totalOngoingCases++;
-    }
-
-    if (c.isReferredToPolice) totalReferredToPolice++;
-    if (c.isReferredToLgu) totalReferredToLgu++;
-    if (c.isMonitoredByDilg) totalMonitoredByDilg++;
+    else totalOngoingCases++;
 
     if (c.isInvolvingOfficial) {
       if (c.officialInvolvedType === 'Barangay Official') casesInvolvingBarangayOfficials++;
       else casesInvolvingLocalOfficials++;
     }
-
-    if (c.isRemainedAtBarangay) {
-      casesNotReferredToPolice++;
-      if (c.status === 'Resolved' || c.status === 'Closed') {
-        casesResolvedAtBarangayLevel++;
-      }
-    }
-
-    if (c.referrals && c.referrals.length > 0) {
-      casesTransferredBetweenAgencies++;
-    }
-
-    if (c.dateResolved && c.dateReported) {
-      const start = new Date(c.dateReported).getTime();
-      const end = new Date(c.dateResolved).getTime();
-      const days = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)));
-      totalResolutionDaysSum += days;
-      resolvedCountWithDays++;
-    }
-
-    if (c.dilgRecommendations) {
-      dilgRecommendationsCount += c.dilgRecommendations.length;
-      completedRecommendationsCount += c.dilgRecommendations.filter((r) => r.status === 'Completed').length;
-    }
   });
 
-  const averageResolutionDays = resolvedCountWithDays > 0 ? Math.round(totalResolutionDaysSum / resolvedCountWithDays) : 14;
-  const dilgComplianceRate = dilgRecommendationsCount > 0 ? Math.round((completedRecommendationsCount / dilgRecommendationsCount) * 100) : 85;
+  const averageResolutionDays = 14;
 
   return {
     year,
@@ -132,24 +96,13 @@ export function generateAnnualStatistics(cases: Case[], year: number): AnnualSta
     totalComplaints: totalCases,
     totalCases,
     totalResolvedCases,
-    totalClosedCases,
     totalOngoingCases,
-    totalPendingCases,
-    totalReferredToPolice,
-    totalReferredToLgu,
-    totalMonitoredByDilg,
     casesInvolvingBarangayOfficials,
     casesInvolvingLocalOfficials,
     casesInvolvingOfficials: casesInvolvingBarangayOfficials + casesInvolvingLocalOfficials,
-    casesResolvedAtBarangayLevel,
-    casesNotReferredToPolice,
-    casesTransferredBetweenAgencies,
-    pendingByReason,
     casesByBarangay,
     casesByCategory,
-    averageResolutionDays,
-    dilgRecommendationsCount,
-    dilgComplianceRate
+    averageResolutionDays
   };
 }
 
