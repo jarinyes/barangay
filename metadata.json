@@ -1,0 +1,6 @@
+{
+  "name": "B-CONNECT: Multi-Agency Incident & Case Tracking System",
+  "description": "Incident Reporting, Case Tracking, Graph Analysis, Inter-Agency Coordination, and LGU Municipal Administration System for Roxas, Oriental Mindoro",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
