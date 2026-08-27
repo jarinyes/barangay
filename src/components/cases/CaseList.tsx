@@ -33,9 +33,7 @@ export const CaseList: React.FC = () => {
     filterCategory, 
     setFilterCategory,
     filterOfficialInvolved, 
-    setFilterOfficialInvolved,
-    filterAgency, 
-    setFilterAgency
+    setFilterOfficialInvolved
   } = useApp();
 
   const isBarangayOfficer = currentUser?.agencyType === 'BARANGAY' && !!currentUser?.barangay;
@@ -72,9 +70,8 @@ export const CaseList: React.FC = () => {
 
     // Status filter
     if (filterStatus !== 'ALL') {
-      if (filterStatus === 'PENDING_ONLY' && !c.isPending && c.status !== 'Pending') return false;
-      else if (filterStatus === 'RESOLVED_ONLY' && c.status !== 'Resolved' && c.status !== 'Closed') return false;
-      else if (filterStatus !== 'PENDING_ONLY' && filterStatus !== 'RESOLVED_ONLY' && c.status !== filterStatus) return false;
+      if (filterStatus === 'Unresolved' && (c.status === 'Resolved' || c.status === 'Closed' as any)) return false;
+      if (filterStatus === 'Resolved' && c.status !== 'Resolved' && c.status !== 'Closed' as any) return false;
     }
 
     // Category filter
@@ -84,13 +81,7 @@ export const CaseList: React.FC = () => {
     if (filterOfficialInvolved === 'YES' && !c.isInvolvingOfficial) return false;
     if (filterOfficialInvolved === 'NO' && c.isInvolvingOfficial) return false;
 
-    // Agency filter
-    if (filterAgency !== 'ALL') {
-      if (filterAgency === 'POLICE' && !c.isReferredToPolice && !c.currentHandlingAgency.includes('Police')) return false;
-      if (filterAgency === 'LGU' && !c.isReferredToLgu && !c.currentHandlingAgency.includes('Municipal')) return false;
-      if (filterAgency === 'BARANGAY' && !c.isRemainedAtBarangay) return false;
-      if (filterAgency === 'DILG' && !c.isMonitoredByDilg) return false;
-    }
+
 
     return true;
   });
@@ -108,12 +99,6 @@ export const CaseList: React.FC = () => {
       'Current Agency',
       'Is Official Involved',
       'Official Name/Role',
-      'Referred to Police',
-      'Referred to LGU',
-      'Monitored by DILG',
-      'Is Pending',
-      'Days Pending',
-      'Pending Reason',
       'Complainants',
       'Respondents'
     ];
@@ -130,12 +115,6 @@ export const CaseList: React.FC = () => {
       c.currentHandlingAgency,
       c.isInvolvingOfficial ? 'YES' : 'NO',
       c.officialInvolvedName || c.officialInvolvedPosition || '',
-      c.isReferredToPolice ? 'YES' : 'NO',
-      c.isReferredToLgu ? 'YES' : 'NO',
-      c.isMonitoredByDilg ? 'YES' : 'NO',
-      c.isPending ? 'YES' : 'NO',
-      c.daysPending || 0,
-      c.pendingReason || '',
       c.complainants.map((p) => p.name).join('; '),
       c.respondents.map((p) => p.name).join('; ')
     ]);
@@ -252,39 +231,15 @@ export const CaseList: React.FC = () => {
               className="w-full py-1.5 px-2 text-xs bg-slate-50 rounded border border-slate-300 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="ALL">All Statuses</option>
-              <option value="PENDING_ONLY">All Pending Cases</option>
-              <option value="RESOLVED_ONLY">All Resolved / Closed</option>
-              <option value="New">New</option>
-              <option value="Under Initial Assessment">Under Initial Assessment</option>
-              <option value="For Barangay Action">For Barangay Action</option>
-              <option value="Under Investigation">Under Investigation</option>
-              <option value="Referred to Police Station">Referred to Police Station</option>
-              <option value="Referred to LGU">Referred to LGU</option>
-              <option value="For DILG Monitoring">For DILG Monitoring</option>
+              <option value="Unresolved">Unresolved</option>
               <option value="Resolved">Resolved</option>
-              <option value="Closed">Closed</option>
-            </select>
-          </div>
-
-          {/* Agency Filter */}
-          <div>
-            <select
-              value={filterAgency}
-              onChange={(e) => setFilterAgency(e.target.value)}
-              className="w-full py-1.5 px-2 text-xs bg-slate-50 rounded border border-slate-300 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="ALL">All Agencies</option>
-              <option value="BARANGAY">Barangay-Retained Only</option>
-              <option value="POLICE">Police Station Referred</option>
-              <option value="LGU">LGU Referred</option>
-              <option value="DILG">DILG Monitored</option>
             </select>
           </div>
         </div>
 
         <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
           <span>Showing <strong>{filteredCases.length}</strong> of <strong>{cases.length}</strong> total records</span>
-          {(filterBarangay !== 'ALL' || filterStatus !== 'ALL' || filterAgency !== 'ALL' || filterOfficialInvolved !== 'ALL' || searchQuery) && (
+          {(filterBarangay !== 'ALL' || filterStatus !== 'ALL' || filterOfficialInvolved !== 'ALL' || searchQuery) && (
             <button
               onClick={() => {
                 setSearchQuery('');
@@ -292,7 +247,6 @@ export const CaseList: React.FC = () => {
                 setFilterStatus('ALL');
                 setFilterCategory('ALL');
                 setFilterOfficialInvolved('ALL');
-                setFilterAgency('ALL');
               }}
               className="text-blue-600 hover:underline cursor-pointer"
             >
@@ -314,7 +268,7 @@ export const CaseList: React.FC = () => {
                 <th className="py-3 px-3">Persons Involved</th>
                 <th className="py-3 px-3">Status</th>
                 <th className="py-3 px-3">Agency Handling</th>
-                <th className="py-3 px-3">Pending / Outcome</th>
+                <th className="py-3 px-3">Outcome</th>
                 <th className="py-3 px-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -372,12 +326,6 @@ export const CaseList: React.FC = () => {
 
                     <td className="py-3 px-3 align-top whitespace-nowrap">
                       <StatusBadge status={c.status} size="sm" />
-                      {c.isMonitoredByDilg && (
-                        <div className="text-[10px] text-purple-700 font-semibold mt-1 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-purple-600" />
-                          DILG Monitored
-                        </div>
-                      )}
                     </td>
 
                     <td className="py-3 px-3 align-top text-[11px] max-w-[160px]">
@@ -390,14 +338,7 @@ export const CaseList: React.FC = () => {
                     </td>
 
                     <td className="py-3 px-3 align-top text-[11px] max-w-xs">
-                      {c.isPending ? (
-                        <div className="bg-amber-50 text-amber-900 p-1.5 rounded border border-amber-200">
-                          <span className="font-bold block text-[10px] text-amber-800">
-                            Pending: {c.daysPending} days
-                          </span>
-                          <span className="text-[10px] line-clamp-1">{c.pendingReason}</span>
-                        </div>
-                      ) : c.status === 'Resolved' || c.status === 'Closed' ? (
+                      {c.status === 'Resolved' || c.status === 'Closed' as any ? (
                         <div className="text-emerald-700 font-medium">
                           {c.outcomeType || 'Resolved'}
                         </div>

@@ -96,13 +96,9 @@ export const Header: React.FC<{ onToggleSidebar?: () => void }> = () => {
       case 'barangay_directory': return 'Barangay & Public Emergency Directory';
       case 'dashboard': return 'Multi-Agency Operational Dashboard';
       case 'cases': return 'Incident & Complaint Ledger';
-      case 'pending': return 'Delay Diagnostic & Pending Radar';
       case 'graph': return 'Inter-Agency Case Relationship Graph';
-      case 'referrals': return 'Cross-Agency Referral & Transfer Hub';
-      case 'recommendations': return 'LGU Directives & Compliance Oversight';
       case 'transparency': return 'Inter-Agency Transparency & Oversight';
       case 'annual_narrative': return 'Annual Case Narrative & Governance Report';
-      case 'annual_pending': return 'Annual Pending Cases Analysis Report';
       case 'standard_reports': return 'Standard Operational & KP Reports';
       case 'audit_trail': return 'System Audit Trail & Integrity Logs';
       case 'admin': return 'System Administration & Master Config';

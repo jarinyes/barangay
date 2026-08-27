@@ -48,22 +48,8 @@ export interface User {
 }
 
 export type CaseStatus = 
-  | 'New'
-  | 'Received'
-  | 'Under Initial Assessment'
-  | 'Under Investigation'
-  | 'For Barangay Action'
-  | 'Referred to Police Station'
-  | 'Referred to LGU'
-  | 'For DILG Monitoring'
-  | 'Awaiting Documents'
-  | 'Awaiting Respondent'
-  | 'Awaiting Complainant'
-  | 'Awaiting Agency Action'
-  | 'Pending'
   | 'Resolved'
-  | 'Closed'
-  | 'Archived';
+  | 'Unresolved';
 
 export type PriorityLevel = 'Low' | 'Medium' | 'High' | 'Urgent';
 
@@ -81,24 +67,7 @@ export type IncidentCategory =
   | 'Multi-Vehicle Pileup Collision'
   | 'Hit-and-Run Vehicular Crash';
 
-export type PendingReason = 
-  | 'Awaiting investigation'
-  | 'Awaiting additional documents'
-  | 'Awaiting complainant response'
-  | 'Awaiting respondent response'
-  | 'Awaiting witness statement'
-  | 'Awaiting Police Station action'
-  | 'Awaiting LGU action'
-  | 'Awaiting DILG action/recommendation'
-  | 'Awaiting barangay action'
-  | 'Scheduled hearing/meeting'
-  | 'For mediation'
-  | 'For further verification'
-  | 'Lack of evidence'
-  | 'Unable to contact involved person'
-  | 'Referred to another agency'
-  | 'Legal/administrative process ongoing'
-  | 'Other reason';
+
 
 export type BarangayRetentionReason =
   | 'Amicable settlement under Katarungang Pambarangay'
@@ -123,15 +92,7 @@ export interface PersonInvolved {
   officialAgency?: string;
 }
 
-export interface CaseAttachment {
-  id: string;
-  name: string;
-  type: string;
-  size: string;
-  uploadDate: string;
-  uploadedBy: string;
-  url?: string;
-}
+
 
 export interface StatusHistoryItem {
   id: string;
@@ -145,51 +106,7 @@ export interface StatusHistoryItem {
   remarks?: string;
 }
 
-export interface CaseReferral {
-  id: string;
-  caseId: string;
-  referringAgency: string;
-  referringOfficer: string;
-  receivingAgency: string;
-  receivingOfficer?: string;
-  referralReason: string;
-  dateReferred: string;
-  dateReceived?: string;
-  documentsTransferred: string[];
-  status: 'Pending Receipt' | 'Received' | 'Under Action' | 'Returned' | 'Completed';
-  responseAction?: string;
-  dateCompleted?: string;
-  notes?: string;
-}
 
-export interface DilgRecommendation {
-  id: string;
-  caseId: string;
-  dilgOfficer: string;
-  dilgOfficerPosition: string;
-  date: string;
-  recommendationType: 
-    | 'Recommendation for Immediate Action'
-    | 'Request for Clarification'
-    | 'Request for Additional Documents'
-    | 'Request for Status Update'
-    | 'Recommendation for Follow-up'
-    | 'Recommendation for Referral'
-    | 'Recommendation for Monitoring'
-    | 'Recommendation for Coordination with Another Agency'
-    | 'Administrative Compliance Directive'
-    | 'Other Authorized Recommendation';
-  detailedRecommendation: string;
-  priority: 'Normal' | 'High' | 'Critical';
-  targetAgency: string;
-  responseDeadline: string;
-  status: 'Awaiting Agency Response' | 'Acknowledged' | 'Action In Progress' | 'Completed' | 'Overdue';
-  agencyResponse?: string;
-  agencyActionOfficer?: string;
-  dateResponseSubmitted?: string;
-  dateCompleted?: string;
-  complianceRemarks?: string;
-}
 
 export interface TimelineEvent {
   id: string;
@@ -200,13 +117,8 @@ export interface TimelineEvent {
     | 'Report Filed'
     | 'Initial Assessment'
     | 'Barangay Action / Lupon'
-    | 'Referral Sent'
-    | 'Referral Received'
     | 'Police Action'
     | 'LGU Action'
-    | 'DILG Monitoring'
-    | 'Recommendation Issued'
-    | 'Response Recorded'
     | 'Status Update'
     | 'Resolution'
     | 'Case Closure';
@@ -253,37 +165,16 @@ export interface Case {
   priority: PriorityLevel;
   status: CaseStatus;
   
-  // Referral & Police/Barangay level tracking
-  isReferredToPolice: boolean;
-  policeCaseNo?: string;
-  blotterEntryNo?: string;
-  isReferredToLgu: boolean;
-  lguEndorsementNo?: string;
-  isMonitoredByDilg: boolean;
-  dilgMonitoringFlagReason?: string;
+
   
-  // Barangay Retention (when not referred to police)
-  isRemainedAtBarangay: boolean;
-  barangayRetentionReason?: BarangayRetentionReason;
-  barangayRetentionNotes?: string;
-  
-  // Pending Management
-  isPending: boolean;
-  pendingReason?: PendingReason;
-  pendingExplanation?: string;
-  pendingSinceDate?: string;
-  daysPending: number;
-  lastActionTaken?: string;
-  requiredNextAction?: string;
-  
+
   // Outcomes
   resolutionSummary?: string;
   dateResolved?: string;
   dateClosed?: string;
   outcomeType?: 'Amicably Settled' | 'Referred to Prosecutor / Court' | 'Referred to Higher Authority' | 'Administrative Sanction' | 'Dismissed / Withdrawn' | 'Mediated' | 'Pending Action';
   
-  // Attachments, Photos & Updates
-  photos?: IncidentPhoto[];
+  // Updates
   isCitizenReport?: boolean;
   residentReporterId?: string;
   isAccidentEmergency?: boolean;
@@ -304,10 +195,7 @@ export interface Case {
   respondingAmbulanceUnit?: string;
   hospitalTransported?: string;
 
-  attachments: CaseAttachment[];
   statusHistory: StatusHistoryItem[];
-  referrals: CaseReferral[];
-  dilgRecommendations: DilgRecommendation[];
   timeline: TimelineEvent[];
   
   // Metadata
@@ -336,7 +224,7 @@ export interface NotificationItem {
   id: string;
   title: string;
   message: string;
-  type: 'referral' | 'recommendation' | 'pending_alert' | 'status_update' | 'system' | 'hearing' | 'advisory' | 'case_registered';
+  type: 'status_update' | 'system' | 'hearing' | 'advisory' | 'case_registered';
   caseId?: string;
   timestamp: string;
   isRead: boolean;
@@ -368,8 +256,7 @@ export type GraphNodeType =
   | 'official' 
   | 'barangay' 
   | 'agency' 
-  | 'location' 
-  | 'document';
+  | 'location';
 
 export type Person = PersonInvolved;
 
@@ -397,7 +284,6 @@ export interface GraphNode {
     degree?: number;
     contact?: string;
     fullAddress?: string;
-    isPending?: boolean;
     [key: string]: any;
   };
   x?: number;
@@ -415,12 +301,9 @@ export interface GraphEdge {
     | 'INVOLVED_IN' 
     | 'COMPLAINED_AGAINST' 
     | 'REPORTED_IN' 
-    | 'REFERRED_TO' 
-    | 'MONITORED_BY' 
     | 'INVOLVES_OFFICIAL' 
     | 'LOCATED_AT' 
-    | 'RELATED_CASE' 
-    | 'HAS_ATTACHMENT';
+    | 'RELATED_CASE';
   weight?: number;
 }
 
@@ -442,26 +325,15 @@ export interface AnnualStatistics {
   totalComplaints: number;
   totalCases: number;
   totalResolvedCases: number;
-  totalClosedCases: number;
   totalOngoingCases: number;
-  totalPendingCases: number;
-  totalReferredToPolice: number;
-  totalReferredToLgu: number;
-  totalMonitoredByDilg: number;
   casesInvolvingBarangayOfficials: number;
   casesInvolvingLocalOfficials: number;
   casesInvolvingOfficials?: number;
-  casesResolvedAtBarangayLevel: number;
-  casesNotReferredToPolice: number;
-  casesTransferredBetweenAgencies: number;
   
   // Breakdown
-  pendingByReason: Record<string, number>;
   casesByBarangay: Record<string, number>;
   casesByCategory: Record<string, number>;
   averageResolutionDays: number;
-  dilgRecommendationsCount: number;
-  dilgComplianceRate: number;
 }
 
 export const ROXAS_BARANGAYS = [

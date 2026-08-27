@@ -49,10 +49,7 @@ export function isNotificationForUser(
       return false;
     }
 
-    // Never show internal police/DILG/LGU administrative tickets to residents unless it is directly their case
-    if (notif.type === 'recommendation' && !relatedCase) {
-      return false;
-    }
+
 
     // If targeted explicitly for residents
     if (notif.targetAgencyTypes?.includes('RESIDENT') || notif.targetRoles?.includes('RESIDENT') || notif.targetAgency === 'RESIDENT') {
@@ -128,8 +125,6 @@ export function isNotificationForUser(
       notif.targetAgency === 'ADMIN' ||
       (notif.targetAgency && notif.targetAgency.toLowerCase().includes('lgu')) ||
       (notif.targetAgency && notif.targetAgency.toLowerCase().includes('municipal')) ||
-      notif.type === 'recommendation' ||
-      notif.type === 'referral' ||
       notif.type === 'system'
     ) {
       return true;

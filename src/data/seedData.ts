@@ -1,4 +1,4 @@
-import { Case, User, AuditLog, DilgRecommendation, NotificationItem } from '../types';
+import { Case, User, AuditLog, NotificationItem } from '../types';
 
 export const SEED_USERS: User[] = [
   // --- SINGLE PILOT BARANGAY ACCOUNT (SAN AQUILINO ONLY) ---
@@ -132,45 +132,11 @@ export const SEED_CASES: Case[] = [
         insuranceCoverage: true
       }
     ],
-    
-    isReferredToPolice: false,
-    isReferredToLgu: false,
-    isMonitoredByDilg: false,
-    
-    isRemainedAtBarangay: true,
-    barangayRetentionReason: 'Amicable settlement under Katarungang Pambarangay',
-    barangayRetentionNotes: 'Successfully resolved via Barangay Traffic Conciliation & KP Form 16. Repair compensation settled amicably.',
-    
-    isPending: false,
-    daysPending: 0,
-    lastActionTaken: 'Signed amicable settlement agreement and released impounded vehicles upon mutual agreement.',
-    requiredNextAction: 'Follow-up verification of motorcycle repair payment.',
-    
-    resolutionSummary: 'Parties executed KP Form 16. Respondent paid ₱3,500 for motorcycle repairs and both drivers signed mutual quitclaim.',
-    dateResolved: '2026-02-18T14:00:00.000Z',
-    dateClosed: '2026-02-18T14:30:00.000Z',
-    outcomeType: 'Amicably Settled',
-    
-    photos: [
-      {
-        id: 'PH-001',
-        url: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=800&auto=format&fit=crop&q=80',
-        caption: 'Intersection collision impact point showing scraped tarmac and side fender dent.',
-        uploadDate: '2026-02-10T08:45:00.000Z',
-        size: '1.8 MB'
-      }
-    ],
-    attachments: [
-      { id: 'ATT-001', name: 'KP-Form-16-Traffic-Settlement.pdf', type: 'application/pdf', size: '1.2 MB', uploadDate: '2026-02-18', uploadedBy: 'Hon. Elena V. Macalalad' },
-      { id: 'ATT-002', name: 'Accident-Scene-Sketch.jpg', type: 'image/jpeg', size: '2.4 MB', uploadDate: '2026-02-10', uploadedBy: 'Tanod Pedro Alvarez' }
-    ],
     statusHistory: [
-      { id: 'SH-001', previousStatus: 'New', newStatus: 'Under Initial Assessment', reason: 'Assigned to Barangay Traffic Committee', changedBy: 'Hon. Elena V. Macalalad', changedByRole: 'Punong Barangay', agency: 'Barangay San Aquilino Traffic Safety Desk', timestamp: '2026-02-10T09:00:00.000Z' },
-      { id: 'SH-002', previousStatus: 'Under Initial Assessment', newStatus: 'For Barangay Action', reason: 'Scheduled conciliation with vehicle owners', changedBy: 'Hon. Elena V. Macalalad', changedByRole: 'Punong Barangay', agency: 'Barangay San Aquilino Traffic Safety Desk', timestamp: '2026-02-12T10:00:00.000Z' },
-      { id: 'SH-003', previousStatus: 'For Barangay Action', newStatus: 'Resolved', reason: 'Amicable settlement executed with repair compensation', changedBy: 'Hon. Elena V. Macalalad', changedByRole: 'Punong Barangay', agency: 'Barangay San Aquilino Traffic Safety Desk', timestamp: '2026-02-18T14:00:00.000Z' }
+      { id: 'SH-001', previousStatus: 'Unresolved', newStatus: 'Unresolved', reason: 'Assigned to Barangay Traffic Committee', changedBy: 'Hon. Elena V. Macalalad', changedByRole: 'Punong Barangay', agency: 'Barangay San Aquilino Traffic Safety Desk', timestamp: '2026-02-10T09:00:00.000Z' },
+      { id: 'SH-002', previousStatus: 'Unresolved', newStatus: 'Unresolved', reason: 'Scheduled conciliation with vehicle owners', changedBy: 'Hon. Elena V. Macalalad', changedByRole: 'Punong Barangay', agency: 'Barangay San Aquilino Traffic Safety Desk', timestamp: '2026-02-12T10:00:00.000Z' },
+      { id: 'SH-003', previousStatus: 'Unresolved', newStatus: 'Resolved', reason: 'Amicable settlement executed with repair compensation', changedBy: 'Hon. Elena V. Macalalad', changedByRole: 'Punong Barangay', agency: 'Barangay San Aquilino Traffic Safety Desk', timestamp: '2026-02-18T14:00:00.000Z' }
     ],
-    referrals: [],
-    dilgRecommendations: [],
     timeline: [
       { id: 'TL-001', caseId: 'BC-2026-001', title: 'Accident Reported', description: 'Motorcycle vs tricycle collision logged at San Aquilino crossing.', stage: 'Report Filed', actorName: 'Carlos Dalisay', actorRole: 'Complainant', actorAgency: 'Barangay San Aquilino Traffic Safety Desk', timestamp: '2026-02-10T08:30:00.000Z' },
       { id: 'TL-002', caseId: 'BC-2026-001', title: 'On-Site Inspection & Clearing', description: 'Barangay Tanod documented skid marks, road position, and cleared broken glass.', stage: 'Barangay Action / Lupon', actorName: 'Tanod Pedro Alvarez', actorRole: 'Witness / Tanod', actorAgency: 'Barangay San Aquilino Traffic Safety Desk', timestamp: '2026-02-10T09:15:00.000Z' },
@@ -256,50 +222,14 @@ export const SEED_CASES: Case[] = [
         insuranceCoverage: true
       }
     ],
-    
-    isReferredToPolice: false,
-    isReferredToLgu: true,
-    lguEndorsementNo: 'LGU-ROX-2026-TRF-014',
-    isMonitoredByDilg: false,
-    
-    isRemainedAtBarangay: true,
-    barangayRetentionReason: 'Administrative dispute resolved internally',
-    barangayRetentionNotes: 'Handled via municipal GSIS vehicle insurance and administrative settlement without court litigation.',
-    
-    isPending: false,
-    daysPending: 0,
-    lastActionTaken: 'LGU General Services Officer released check voucher for motorcycle parts replacement.',
-    requiredNextAction: 'Routine audit of municipal vehicle dispatch logs.',
-    
-    attachments: [
-      { id: 'ATT-003', name: 'Accident-Report-Villanueva.pdf', type: 'application/pdf', size: '950 KB', uploadDate: '2026-03-01', uploadedBy: 'Barangay Secretary' },
-      { id: 'ATT-004', name: 'GSIS-Claim-Form.pdf', type: 'application/pdf', size: '820 KB', uploadDate: '2026-03-04', uploadedBy: 'Danilo Reyes' }
-    ],
     statusHistory: [
-      { id: 'SH-004', previousStatus: 'New', newStatus: 'Under Initial Assessment', reason: 'Logged as government vehicle accident', changedBy: 'Barangay Libertad Admin', changedByRole: 'Barangay Secretary', agency: 'Barangay Libertad LGU', timestamp: '2026-03-01T10:00:00.000Z' },
-      { id: 'SH-005', previousStatus: 'Under Initial Assessment', newStatus: 'Referred to LGU', reason: 'Transmitted to Municipal Administrator for government vehicle insurance settlement', changedBy: 'Atty. Clarissa Reyes', changedByRole: 'LGU Administrator', agency: 'Municipal Government of Roxas', timestamp: '2026-03-03T11:00:00.000Z' },
-      { id: 'SH-006', previousStatus: 'Referred to LGU', newStatus: 'Resolved', reason: 'Insurance claim disbursed and settlement executed', changedBy: 'Atty. Clarissa Reyes', changedByRole: 'LGU Administrator', agency: 'Municipal Government of Roxas', timestamp: '2026-03-09T16:00:00.000Z' }
+      { id: 'SH-004', previousStatus: 'Unresolved', newStatus: 'Unresolved', reason: 'Logged as government vehicle accident', changedBy: 'Barangay Libertad Admin', changedByRole: 'Barangay Secretary', agency: 'Barangay Libertad LGU', timestamp: '2026-03-01T10:00:00.000Z' },
+      { id: 'SH-005', previousStatus: 'Unresolved', newStatus: 'Unresolved', reason: 'Transmitted to Municipal Administrator for government vehicle insurance settlement', changedBy: 'Atty. Clarissa Reyes', changedByRole: 'LGU Administrator', agency: 'Municipal Government of Roxas', timestamp: '2026-03-03T11:00:00.000Z' },
+      { id: 'SH-006', previousStatus: 'Unresolved', newStatus: 'Resolved', reason: 'Insurance claim disbursed and settlement executed', changedBy: 'Atty. Clarissa Reyes', changedByRole: 'LGU Administrator', agency: 'Municipal Government of Roxas', timestamp: '2026-03-09T16:00:00.000Z' }
     ],
-    referrals: [
-      {
-        id: 'REF-001',
-        caseId: 'BC-2026-002',
-        referringAgency: 'Barangay Libertad LGU',
-        referringOfficer: 'Barangay Secretary',
-        receivingAgency: 'Municipal Government of Roxas',
-        receivingOfficer: 'Atty. Clarissa Reyes',
-        referralReason: 'Administrative settlement and GSIS claim for municipal service van crash',
-        dateReferred: '2026-03-02T09:00:00.000Z',
-        dateReceived: '2026-03-02T14:00:00.000Z',
-        documentsTransferred: ['Accident-Report-Villanueva.pdf', 'Police-Traffic-Sketch.pdf'],
-        status: 'Completed',
-        responseAction: 'LGU Admin processed full repair reimbursement (₱8,400) via municipal vehicle insurance.'
-      }
-    ],
-    dilgRecommendations: [],
     timeline: [
       { id: 'TL-005', caseId: 'BC-2026-002', title: 'Crash Reported', description: 'Side-swipe incident occurred along Libertad Port road.', stage: 'Report Filed', actorName: 'Teresa Villanueva', actorRole: 'Complainant', actorAgency: 'Barangay Libertad LGU', timestamp: '2026-03-01T09:15:00.000Z' },
-      { id: 'TL-006', caseId: 'BC-2026-002', title: 'Transmitted to LGU Admin', description: 'Barangay forwarded accident dossier to Municipal Administrator.', stage: 'Referral Sent', actorName: 'Barangay Libertad Admin', actorRole: 'Barangay Secretary', actorAgency: 'Barangay Libertad LGU', timestamp: '2026-03-02T09:00:00.000Z' },
+      { id: 'TL-006', caseId: 'BC-2026-002', title: 'Transmitted to LGU Admin', description: 'Barangay forwarded accident dossier to Municipal Administrator.', stage: 'Status Update', actorName: 'Barangay Libertad Admin', actorRole: 'Barangay Secretary', actorAgency: 'Barangay Libertad LGU', timestamp: '2026-03-02T09:00:00.000Z' },
       { id: 'TL-007', caseId: 'BC-2026-002', title: 'Insurance Settlement Processed', description: 'Municipal Administrator authorized vehicle repair disbursement.', stage: 'LGU Action', actorName: 'Atty. Clarissa Reyes', actorRole: 'Municipal Administrator', actorAgency: 'Municipal Government of Roxas', timestamp: '2026-03-06T10:30:00.000Z' },
       { id: 'TL-008', caseId: 'BC-2026-002', title: 'Case Closed & Resolved', description: 'Vehicle repair completed and mutual satisfaction signed.', stage: 'Resolution', actorName: 'Atty. Clarissa Reyes', actorRole: 'Municipal Administrator', actorAgency: 'Municipal Government of Roxas', timestamp: '2026-03-09T16:00:00.000Z' }
     ],
@@ -344,7 +274,7 @@ export const SEED_CASES: Case[] = [
     assignedPersonnel: 'MDRRMO Traffic Crash Investigation Unit',
     assignedPersonnelContact: '0928-555-7890 (MDRRMO Roxas)',
     priority: 'Urgent',
-    status: 'Under Investigation',
+    status: 'Unresolved',
 
     isAccidentEmergency: true,
     accidentVehicleDetails: 'Yamaha Sniper 150 (Plate # 9921-YM) vs Suzuki Raider 150 (Plate # 3144-SZ)',
@@ -383,39 +313,9 @@ export const SEED_CASES: Case[] = [
         insuranceCoverage: false
       }
     ],
-    
-    isReferredToPolice: false,
-    isReferredToLgu: true,
-    lguEndorsementNo: 'LGU-MDRRMO-2026-088',
-    isMonitoredByDilg: false,
-    
-    isRemainedAtBarangay: false,
-    
-    isPending: true,
-    pendingReason: 'Awaiting investigation',
-    pendingExplanation: 'Awaiting formal medico-legal hospital certificates and driver release from surgery before executing liability assessment.',
-    daysPending: 4,
-    lastActionTaken: 'MDRRMO and Traffic Investigators impounded wreckages and secured gas station CCTV footage.',
-    requiredNextAction: 'Obtain toxicological / alcohol test results and complete traffic accident reconstruction report.',
-    
-    photos: [
-      {
-        id: 'PH-002',
-        url: 'https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?w=800&auto=format&fit=crop&q=80',
-        caption: 'Highway collision debris and damaged front chassis in heavy downpour.',
-        uploadDate: '2026-03-12T23:55:00.000Z',
-        size: '2.1 MB'
-      }
-    ],
-    attachments: [
-      { id: 'ATT-006', name: 'MDRRMO-Emergency-Dispatch-Log.pdf', type: 'application/pdf', size: '640 KB', uploadDate: '2026-03-13', uploadedBy: 'MDRRMO Responders' },
-      { id: 'ATT-007', name: 'Crash-Scene-Investigation-Report.pdf', type: 'application/pdf', size: '1.1 MB', uploadDate: '2026-03-13', uploadedBy: 'Traffic Investigator' }
-    ],
     statusHistory: [
-      { id: 'SH-007', previousStatus: 'New', newStatus: 'Under Investigation', reason: 'High-speed head-on collision requiring hospital tracking and technical crash analysis', changedBy: 'Atty. Clarissa Reyes', changedByRole: 'LGU Administrator', agency: 'Municipal Government of Roxas', timestamp: '2026-03-13T01:30:00.000Z' }
+      { id: 'SH-007', previousStatus: 'Unresolved', newStatus: 'Unresolved', reason: 'High-speed head-on collision requiring hospital tracking and technical crash analysis', changedBy: 'Atty. Clarissa Reyes', changedByRole: 'LGU Administrator', agency: 'Municipal Government of Roxas', timestamp: '2026-03-13T01:30:00.000Z' }
     ],
-    referrals: [],
-    dilgRecommendations: [],
     timeline: [
       { id: 'TL-010', caseId: 'BC-2026-003', title: 'Severe Collision Occurred', description: 'Head-on crash reported on Nautical Highway. Emergency alarm broadcasted.', stage: 'Report Filed', actorName: 'Renato Dalisay', actorRole: 'Witness', actorAgency: 'Barangay San Miguel Traffic Safety Unit', timestamp: '2026-03-12T23:45:00.000Z' },
       { id: 'TL-011', caseId: 'BC-2026-003', title: 'MDRRMO Ambulance Dispatch', description: 'Rescue unit transported critical victims to Southern District Hospital.', stage: 'LGU Action', actorName: 'MDRRMO Alpha-2', actorRole: 'Responder', actorAgency: 'Municipal Government of Roxas', timestamp: '2026-03-13T00:10:00.000Z' },
@@ -497,43 +397,10 @@ export const SEED_CASES: Case[] = [
         insuranceCoverage: true
       }
     ],
-    
-    isReferredToPolice: false,
-    isReferredToLgu: true,
-    lguEndorsementNo: 'TRF-ROX-2026-019',
-    isMonitoredByDilg: false,
-    
-    isRemainedAtBarangay: false,
-    
-    isPending: false,
-    daysPending: 0,
-    lastActionTaken: 'Fleet insurer issued total repair & medical indemnity voucher (₱145,000) acknowledged by victims.',
-    requiredNextAction: 'Mandatory mechanical fitness re-inspection of trucking fleet.',
-    
-    attachments: [
-      { id: 'ATT-009', name: 'Truck-Crash-Inspection-Photos.pdf', type: 'application/pdf', size: '3.8 MB', uploadDate: '2026-02-22', uploadedBy: 'Brgy. Bagumbayan Tanod' },
-      { id: 'ATT-010', name: 'Insurance-Settlement-Deed.pdf', type: 'application/pdf', size: '520 KB', uploadDate: '2026-02-25', uploadedBy: 'Engr. Dennis Tan' }
-    ],
     statusHistory: [
-      { id: 'SH-009', previousStatus: 'New', newStatus: 'Referred to LGU', reason: 'Commercial heavy vehicle liability requiring municipal transport unit adjudication', changedBy: 'PB Bagumbayan', changedByRole: 'Punong Barangay', agency: 'Barangay Bagumbayan Traffic Unit', timestamp: '2026-02-25T09:00:00.000Z' },
-      { id: 'SH-010', previousStatus: 'Referred to LGU', newStatus: 'Resolved', reason: 'Full commercial liability indemnity acknowledged and paid', changedBy: 'Engr. Dennis Tan', changedByRole: 'Municipal Traffic Officer', agency: 'Municipal Government of Roxas', timestamp: '2026-03-05T14:00:00.000Z' }
+      { id: 'SH-009', previousStatus: 'Unresolved', newStatus: 'Unresolved', reason: 'Commercial heavy vehicle liability requiring municipal transport unit adjudication', changedBy: 'PB Bagumbayan', changedByRole: 'Punong Barangay', agency: 'Barangay Bagumbayan Traffic Unit', timestamp: '2026-02-25T09:00:00.000Z' },
+      { id: 'SH-010', previousStatus: 'Unresolved', newStatus: 'Resolved', reason: 'Full commercial liability indemnity acknowledged and paid', changedBy: 'Engr. Dennis Tan', changedByRole: 'Municipal Traffic Officer', agency: 'Municipal Government of Roxas', timestamp: '2026-03-05T14:00:00.000Z' }
     ],
-    referrals: [
-      {
-        id: 'REF-003',
-        caseId: 'BC-2026-004',
-        referringAgency: 'Barangay Bagumbayan Traffic Unit',
-        referringOfficer: 'Hon. PB Bagumbayan',
-        receivingAgency: 'Municipal Government of Roxas',
-        receivingOfficer: 'Engr. Dennis Tan (Traffic Division)',
-        referralReason: 'Commercial heavy vehicle brake malfunction and multi-passenger damage claim',
-        dateReferred: '2026-02-25T09:00:00.000Z',
-        dateReceived: '2026-02-26T10:00:00.000Z',
-        documentsTransferred: ['Truck-Crash-Inspection-Photos.pdf', 'Driver-License-Log.pdf'],
-        status: 'Completed'
-      }
-    ],
-    dilgRecommendations: [],
     timeline: [
       { id: 'TL-014', caseId: 'BC-2026-004', title: 'Rear-End Crash Logged', description: 'Dump truck struck passenger multicab at Bagumbayan bridge.', stage: 'Report Filed', actorName: 'Rolando Dimaano', actorRole: 'Complainant', actorAgency: 'Barangay Bagumbayan Traffic Unit', timestamp: '2026-02-22T07:45:00.000Z' },
       { id: 'TL-015', caseId: 'BC-2026-004', title: 'Traffic Division Technical Inspection', description: 'Brake line failure confirmed; operator fleet summoned for mediation.', stage: 'LGU Action', actorName: 'Engr. Dennis Tan', actorRole: 'Traffic Officer', actorAgency: 'Municipal Government of Roxas', timestamp: '2026-02-25T09:00:00.000Z' },
@@ -603,38 +470,10 @@ export const SEED_CASES: Case[] = [
         insuranceCoverage: true
       }
     ],
-    
-    isReferredToPolice: false,
-    isReferredToLgu: false,
-    isMonitoredByDilg: false,
-    
-    isRemainedAtBarangay: true,
-    barangayRetentionReason: 'Amicable settlement under Katarungang Pambarangay',
-    barangayRetentionNotes: 'Settled at barangay level. Contractor paid ₱2,000 for handlebar realignment and cleared road aggregate with broom and water flusher.',
-    
-    isPending: false,
-    daysPending: 0,
-    lastActionTaken: 'Road cleared of hazardous sand; contractor signed road safety compliance pledge.',
-    requiredNextAction: 'Routine Tanod patrol to ensure no construction materials occupy public road right-of-way.',
-    
-    photos: [
-      {
-        id: 'PH-003',
-        url: 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800&auto=format&fit=crop&q=80',
-        caption: 'Motorcycle extracted from roadside ditch after slipping on loose road aggregate.',
-        uploadDate: '2026-03-10T11:15:00.000Z',
-        size: '1.9 MB'
-      }
-    ],
-    attachments: [
-      { id: 'ATT-011', name: 'Road-Hazard-Clearing-Certificate.pdf', type: 'application/pdf', size: '480 KB', uploadDate: '2026-03-11', uploadedBy: 'Tanod Patrol Leader' }
-    ],
     statusHistory: [
-      { id: 'SH-011', previousStatus: 'New', newStatus: 'Under Initial Assessment', reason: 'Single-vehicle road hazard incident logged', changedBy: 'Hon. Elena V. Macalalad', changedByRole: 'Punong Barangay', agency: 'Barangay San Aquilino Traffic Safety Desk', timestamp: '2026-03-10T11:30:00.000Z' },
-      { id: 'SH-012', previousStatus: 'Under Initial Assessment', newStatus: 'Resolved', reason: 'Road hazard cleared and motorcycle repair reimbursement made', changedBy: 'Hon. Elena V. Macalalad', changedByRole: 'Punong Barangay', agency: 'Barangay San Aquilino Traffic Safety Desk', timestamp: '2026-03-11T16:00:00.000Z' }
+      { id: 'SH-011', previousStatus: 'Unresolved', newStatus: 'Unresolved', reason: 'Single-vehicle road hazard incident logged', changedBy: 'Hon. Elena V. Macalalad', changedByRole: 'Punong Barangay', agency: 'Barangay San Aquilino Traffic Safety Desk', timestamp: '2026-03-10T11:30:00.000Z' },
+      { id: 'SH-012', previousStatus: 'Unresolved', newStatus: 'Resolved', reason: 'Road hazard cleared and motorcycle repair reimbursement made', changedBy: 'Hon. Elena V. Macalalad', changedByRole: 'Punong Barangay', agency: 'Barangay San Aquilino Traffic Safety Desk', timestamp: '2026-03-11T16:00:00.000Z' }
     ],
-    referrals: [],
-    dilgRecommendations: [],
     timeline: [
       { id: 'TL-017', caseId: 'BC-2026-005', title: 'Single-Vehicle Crash Logged', description: 'Motorcycle slipped on loose sand along Sitio Riverside.', stage: 'Report Filed', actorName: 'Mark Anthony Salazar', actorRole: 'Complainant', actorAgency: 'Barangay San Aquilino Traffic Safety Desk', timestamp: '2026-03-10T11:00:00.000Z' },
       { id: 'TL-018', caseId: 'BC-2026-005', title: 'Road Hazard Removed', description: 'Contractor cleared sand and gravel off asphalt surface.', stage: 'Barangay Action / Lupon', actorName: 'Tanod Patrol Team', actorRole: 'Responder', actorAgency: 'Barangay San Aquilino Traffic Safety Desk', timestamp: '2026-03-11T09:00:00.000Z' },
@@ -680,7 +519,7 @@ export const SEED_CASES: Case[] = [
     currentHandlingAgency: 'Municipal Government of Roxas (LGU Executive & Traffic Oversight)',
     assignedPersonnel: 'Municipal Traffic Enforcement & CCTV Command',
     priority: 'Urgent',
-    status: 'Under Investigation',
+    status: 'Unresolved',
 
     isAccidentEmergency: true,
     accidentVehicleDetails: 'Unidentified Black Underbone Motorcycle (Open Exhaust / No Plate Installed)',
@@ -711,30 +550,9 @@ export const SEED_CASES: Case[] = [
         damageSeverity: 'Moderate Functional Damage'
       }
     ],
-    
-    isReferredToPolice: false,
-    isReferredToLgu: true,
-    lguEndorsementNo: 'LGU-HITRUN-2026-009',
-    isMonitoredByDilg: false,
-    
-    isRemainedAtBarangay: false,
-    
-    isPending: true,
-    pendingReason: 'Awaiting witness statement',
-    pendingExplanation: 'Tracking motorcycle registration through municipal CCTV corridor cameras in Brgy. Odiong and Bagumbayan.',
-    daysPending: 8,
-    lastActionTaken: 'Reviewed 3 CCTV angles from Public Market and nearby commercial establishments.',
-    requiredNextAction: 'Summon owner of identified vehicle matching custom decal pattern.',
-    
-    attachments: [
-      { id: 'ATT-012', name: 'CCTV-Frame-Grab-Suspect.jpg', type: 'image/jpeg', size: '1.6 MB', uploadDate: '2026-03-09', uploadedBy: 'CCTV Command Center' },
-      { id: 'ATT-013', name: 'Hospital-Intake-Record.pdf', type: 'application/pdf', size: '710 KB', uploadDate: '2026-03-09', uploadedBy: 'Melencio Dalisay' }
-    ],
     statusHistory: [
-      { id: 'SH-013', previousStatus: 'New', newStatus: 'Under Investigation', reason: 'Hit-and-run vehicular incident requiring CCTV surveillance tracking', changedBy: 'Atty. Clarissa Reyes', changedByRole: 'LGU Administrator', agency: 'Municipal Government of Roxas', timestamp: '2026-03-09T08:00:00.000Z' }
+      { id: 'SH-013', previousStatus: 'Unresolved', newStatus: 'Unresolved', reason: 'Hit-and-run vehicular incident requiring CCTV surveillance tracking', changedBy: 'Atty. Clarissa Reyes', changedByRole: 'LGU Administrator', agency: 'Municipal Government of Roxas', timestamp: '2026-03-09T08:00:00.000Z' }
     ],
-    referrals: [],
-    dilgRecommendations: [],
     timeline: [
       { id: 'TL-020', caseId: 'BC-2026-006', title: 'Hit-and-Run Incident Reported', description: 'Pedestrian struck at Victoria pedestrian lane; suspect fled northbound.', stage: 'Report Filed', actorName: 'Danilo Ramos', actorRole: 'Witness', actorAgency: 'Barangay Victoria Traffic Desk', timestamp: '2026-03-08T20:30:00.000Z' },
       { id: 'TL-021', caseId: 'BC-2026-006', title: 'Emergency Transport Conducted', description: 'MDRRMO ambulance mobilized patient to Roxas Medicare.', stage: 'LGU Action', actorName: 'MDRRMO Bravo-1', actorRole: 'Responder', actorAgency: 'Municipal Government of Roxas', timestamp: '2026-03-08T20:45:00.000Z' },
@@ -804,29 +622,10 @@ export const SEED_CASES: Case[] = [
         insuranceCoverage: true
       }
     ],
-    
-    isReferredToPolice: false,
-    isReferredToLgu: false,
-    isMonitoredByDilg: false,
-    
-    isRemainedAtBarangay: true,
-    barangayRetentionReason: 'Amicable settlement under Katarungang Pambarangay',
-    barangayRetentionNotes: 'Resolved through TODA Group Accident Insurance and KP Form 16 amicable agreement.',
-    
-    isPending: false,
-    daysPending: 0,
-    lastActionTaken: 'TODA mutual aid fund released medical reimbursement check (₱6,500) to passenger family.',
-    requiredNextAction: 'Annual tricycle roadworthiness and tire tread inspection.',
-    
-    attachments: [
-      { id: 'ATT-014', name: 'Tricycle-Rollover-Inspection.pdf', type: 'application/pdf', size: '1.4 MB', uploadDate: '2026-02-15', uploadedBy: 'PB Victoria' }
-    ],
     statusHistory: [
-      { id: 'SH-014', previousStatus: 'New', newStatus: 'For Barangay Action', reason: 'Tricycle passenger accident referred to Lupon mediation', changedBy: 'PB Victoria', changedByRole: 'Punong Barangay', agency: 'Barangay Victoria Traffic Desk', timestamp: '2026-02-15T09:00:00.000Z' },
-      { id: 'SH-015', previousStatus: 'For Barangay Action', newStatus: 'Resolved', reason: 'TODA group insurance settlement disbursed', changedBy: 'PB Victoria', changedByRole: 'Punong Barangay', agency: 'Barangay Victoria Traffic Desk', timestamp: '2026-02-28T15:00:00.000Z' }
+      { id: 'SH-014', previousStatus: 'Unresolved', newStatus: 'Unresolved', reason: 'Tricycle passenger accident referred to Lupon mediation', changedBy: 'PB Victoria', changedByRole: 'Punong Barangay', agency: 'Barangay Victoria Traffic Desk', timestamp: '2026-02-15T09:00:00.000Z' },
+      { id: 'SH-015', previousStatus: 'Unresolved', newStatus: 'Resolved', reason: 'TODA group insurance settlement disbursed', changedBy: 'PB Victoria', changedByRole: 'Punong Barangay', agency: 'Barangay Victoria Traffic Desk', timestamp: '2026-02-28T15:00:00.000Z' }
     ],
-    referrals: [],
-    dilgRecommendations: [],
     timeline: [
       { id: 'TL-023', caseId: 'BC-2026-007', title: 'Tricycle Rollover Logged', description: 'Tire blowout caused sidecar rollover into concrete pole.', stage: 'Report Filed', actorName: 'Kagawad Juanito Cruz', actorRole: 'Witness', actorAgency: 'Barangay Victoria Traffic Desk', timestamp: '2026-02-14T14:15:00.000Z' },
       { id: 'TL-024', caseId: 'BC-2026-007', title: 'Amicable Settlement Signed', description: 'TODA insurance covered clinic bills; passenger signed release.', stage: 'Resolution', actorName: 'Nestor Alcantara', actorRole: 'Respondent', actorAgency: 'Barangay Victoria Traffic Desk', timestamp: '2026-02-28T15:00:00.000Z' }
@@ -906,28 +705,9 @@ export const SEED_CASES: Case[] = [
         insuranceCoverage: false
       }
     ],
-    
-    isReferredToPolice: false,
-    isReferredToLgu: false,
-    isMonitoredByDilg: false,
-    
-    isRemainedAtBarangay: true,
-    barangayRetentionReason: 'Amicable settlement under Katarungang Pambarangay',
-    barangayRetentionNotes: 'Immediate on-site conciliation. Respondent paid for new e-trike front suspension and battery replacement.',
-    
-    isPending: false,
-    daysPending: 0,
-    lastActionTaken: 'Repair reimbursement executed before Lupon.',
-    requiredNextAction: 'Advise residents on municipal ordinance restricting e-bikes on national highway lanes.',
-    
-    attachments: [
-      { id: 'ATT-015', name: 'E-Trike-Repair-Quotation.pdf', type: 'application/pdf', size: '510 KB', uploadDate: '2026-03-06', uploadedBy: 'PB Odiong' }
-    ],
     statusHistory: [
-      { id: 'SH-016', previousStatus: 'New', newStatus: 'Resolved', reason: 'Settlement executed and acknowledged on-site', changedBy: 'PB Odiong', changedByRole: 'Punong Barangay', agency: 'Barangay Odiong Traffic Desk', timestamp: '2026-03-06T10:00:00.000Z' }
+      { id: 'SH-016', previousStatus: 'Unresolved', newStatus: 'Resolved', reason: 'Settlement executed and acknowledged on-site', changedBy: 'PB Odiong', changedByRole: 'Punong Barangay', agency: 'Barangay Odiong Traffic Desk', timestamp: '2026-03-06T10:00:00.000Z' }
     ],
-    referrals: [],
-    dilgRecommendations: [],
     timeline: [
       { id: 'TL-025', caseId: 'BC-2026-008', title: 'E-Trike Crash Reported', description: 'SUV clipped electric trike at Odiong Junction.', stage: 'Report Filed', actorName: 'Liza Macaraeg', actorRole: 'Complainant', actorAgency: 'Barangay Odiong Traffic Desk', timestamp: '2026-03-05T16:20:00.000Z' },
       { id: 'TL-026', caseId: 'BC-2026-008', title: 'Settlement Executed', description: 'SUV driver settled repair costs with e-trike owner.', stage: 'Resolution', actorName: 'Bernardo Ramos', actorRole: 'Respondent', actorAgency: 'Barangay Odiong Traffic Desk', timestamp: '2026-03-06T10:00:00.000Z' }
@@ -1026,21 +806,6 @@ export const SEED_NOTIFICATIONS: NotificationItem[] = [
     targetBarangay: 'San Aquilino',
     priority: 'normal'
   },
-
-  // --- BARANGAY NOTIFICATIONS ---
-  {
-    id: 'NOTIF-BGY-01',
-    title: 'Accident Settlement Hearing (Brgy. San Aquilino)',
-    message: 'Case #BC-2026-001 (Motorcycle vs Tricycle Collision at Morente Ave) scheduled for settlement verification.',
-    type: 'pending_alert',
-    caseId: 'BC-2026-001',
-    timestamp: '2026-03-14T08:00:00.000Z',
-    isRead: false,
-    targetAgency: 'BARANGAY',
-    targetAgencyTypes: ['BARANGAY'],
-    targetBarangay: 'San Aquilino',
-    priority: 'normal'
-  },
   {
     id: 'NOTIF-BGY-02',
     title: 'Road Hazard Cleared Notification',
@@ -1053,20 +818,6 @@ export const SEED_NOTIFICATIONS: NotificationItem[] = [
     targetAgencyTypes: ['BARANGAY'],
     targetBarangay: 'San Aquilino',
     priority: 'normal'
-  },
-
-  // --- LGU NOTIFICATIONS ---
-  {
-    id: 'NOTIF-LGU-01',
-    title: 'Urgent Crash Alert: Head-On Collision (San Miguel)',
-    message: 'Case #BC-2026-003: Two motorcycle riders critical at Kilometer Post 128 Nautical Highway. MDRRMO Alpha-2 dispatched.',
-    type: 'pending_alert',
-    caseId: 'BC-2026-003',
-    timestamp: '2026-03-12T23:50:00.000Z',
-    isRead: false,
-    targetAgency: 'LGU',
-    targetAgencyTypes: ['LGU', 'ADMIN'],
-    priority: 'urgent'
   },
   {
     id: 'NOTIF-LGU-02',

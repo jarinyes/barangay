@@ -259,8 +259,7 @@ export const GraphNetworkView: React.FC = () => {
   const getNodeColor = (node: GraphNode) => {
     if (node.type === 'case') {
       if (node.rawCase?.isInvolvingOfficial) return '#ef4444'; // Red
-      if (node.rawCase?.status === 'Resolved' || node.rawCase?.status === 'Closed') return '#10b981'; // Green
-      if (node.rawCase?.isPending) return '#f59e0b'; // Amber
+      if (node.rawCase?.status === 'Resolved') return '#10b981'; // Green
       return '#3b82f6'; // Blue
     }
     if (node.type === 'official') return '#dc2626'; // Deep Red

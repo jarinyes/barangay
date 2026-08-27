@@ -60,21 +60,19 @@ export const TransparencyDashboard: React.FC = () => {
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
           <p className="text-xs text-slate-500 uppercase font-bold tracking-tight">Resolution Rate</p>
           <h3 className="text-3xl font-bold mt-1 text-emerald-600">
-            {stats.totalCases > 0 ? Math.round(((stats.totalResolvedCases + stats.totalClosedCases) / stats.totalCases) * 100) : 0}%
+            {stats.totalCases > 0 ? Math.round(((stats.totalResolvedCases) / stats.totalCases) * 100) : 0}%
           </h3>
-          <div className="flex items-center gap-2 mt-2 text-[10px] text-emerald-600 font-bold">
-            <span>{stats.totalResolvedCases + stats.totalClosedCases} Settled or Closed</span>
-            <div className="h-px flex-1 bg-slate-100"></div>
-          </div>
+          <p className="text-[10px] text-teal-600 font-medium mt-1">
+            {stats.totalCases > 0 ? Math.round(((stats.totalResolvedCases) / stats.totalCases) * 100) : 0}% settlement rate
+          </p>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <p className="text-xs text-slate-500 uppercase font-bold tracking-tight">Pending Cases</p>
-          <h3 className="text-3xl font-bold mt-1 text-amber-500">{stats.totalPendingCases}</h3>
-          <div className="flex items-center gap-2 mt-2 text-[10px] text-amber-600 font-bold">
-            <span>Documented Delays</span>
-            <div className="h-px flex-1 bg-slate-100"></div>
-          </div>
+        <div className="bg-amber-600 rounded-lg shadow-sm border border-amber-700 p-4 flex flex-col justify-center items-center text-white">
+          <span className="text-xs uppercase font-bold tracking-wider opacity-90 mb-1 text-center">Active & Ongoing Cases</span>
+          <span className="text-4xl font-extrabold">{stats.totalOngoingCases}</span>
+          <p className="text-[10px] text-amber-100 font-medium mt-1 text-center">
+            Currently unresolved
+          </p>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
@@ -119,71 +117,7 @@ export const TransparencyDashboard: React.FC = () => {
 
         {/* Inter-Agency Transfer & Oversight Metrics */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-4">
-          <div>
-            <h3 className="font-bold text-sm text-slate-800 mb-1">
-              Multi-Agency Coordination & Referral Ratios
-            </h3>
-            <p className="text-xs text-slate-500">How cases flow through the 4 government levels</p>
-          </div>
 
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="p-3 bg-sky-50 rounded-lg border border-sky-100">
-              <span className="text-sky-800 font-semibold block">Settled at Barangay Level</span>
-              <span className="text-2xl font-bold text-sky-900 mt-1 block">
-                {stats.casesNotReferredToPolice}
-              </span>
-              <span className="text-[10px] text-sky-700 mt-0.5 block">
-                Katarungang Pambarangay jurisdiction
-              </span>
-            </div>
-
-            <div className="p-3 bg-indigo-50 rounded-lg border border-indigo-100">
-              <span className="text-indigo-800 font-semibold block">Police Station Referrals</span>
-              <span className="text-2xl font-bold text-indigo-900 mt-1 block">
-                {stats.totalReferredToPolice}
-              </span>
-              <span className="text-[10px] text-indigo-700 mt-0.5 block">
-                Criminal investigation required
-              </span>
-            </div>
-
-            <div className="p-3 bg-teal-50 rounded-lg border border-teal-100">
-              <span className="text-teal-800 font-semibold block">Municipal LGU Referrals</span>
-              <span className="text-2xl font-bold text-teal-900 mt-1 block">
-                {stats.totalReferredToLgu}
-              </span>
-              <span className="text-[10px] text-teal-700 mt-0.5 block">
-                MENRO / Market / Legal Review
-              </span>
-            </div>
-
-            <div className="p-3 bg-purple-50 rounded-lg border border-purple-100">
-              <span className="text-purple-800 font-semibold block">DILG Monitored Matters</span>
-              <span className="text-2xl font-bold text-purple-900 mt-1 block">
-                {stats.totalMonitoredByDilg}
-              </span>
-              <span className="text-[10px] text-purple-700 mt-0.5 block">
-                Official oversight & compliance directives
-              </span>
-            </div>
-          </div>
-
-          {/* Pending Reason Analysis */}
-          <div className="pt-2 border-t border-slate-100">
-            <h4 className="text-xs font-bold text-slate-800 mb-2">Pending Case Reason Summary</h4>
-            <div className="space-y-1.5 text-xs">
-              {Object.entries(stats.pendingByReason).length === 0 ? (
-                <div className="text-slate-400 text-xs py-2">No pending cases.</div>
-              ) : (
-                Object.entries(stats.pendingByReason).map(([reason, cnt]) => (
-                  <div key={reason} className="flex justify-between items-center bg-slate-50 p-1.5 rounded">
-                    <span className="text-slate-700">{reason}</span>
-                    <span className="font-mono font-bold text-amber-700">{cnt} case{cnt === 1 ? '' : 's'}</span>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
         </div>
       </div>
     </div>
