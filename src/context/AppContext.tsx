@@ -20,8 +20,8 @@ import { filterNotificationsForUser } from '../utils/notificationHelpers';
 interface AppContextType {
   isAuthenticated: boolean;
   login: (user: User) => void;
-  loginWithCredentials: (emailOrId: string, passcode?: string) => { success: boolean; message?: string };
-  logout: () => void;
+  loginWithCredentials: (emailOrId: string, passcode?: string) => Promise<{ success: boolean; message?: string }>;
+  logout: () => Promise<void>;
   currentUser: User;
   setCurrentUser: (user: User) => void;
   users: User[];
@@ -104,6 +104,8 @@ const LOCAL_STORAGE_NOTIFS_KEY = 'bconnect_roxas_notifs_v7';
 const LOCAL_STORAGE_USER_KEY = 'bconnect_roxas_user_v11';
 const LOCAL_STORAGE_USERS_KEY = 'bconnect_roxas_users_v11';
 const LOCAL_STORAGE_AUTH_KEY = 'bconnect_roxas_auth_status_v11';
+// User data and Auth state are now primarily handled by backend APIs,
+// but constants are kept for backwards compatibility with non-auth client logic.
 
 const VALID_6_BARANGAYS: string[] = ['San Aquilino', 'Bagumbayan', 'Libertad', 'Odiong', 'San Miguel', 'Victoria'];
 
@@ -126,119 +128,76 @@ const sanitizeCaseBarangay = (rawCase: any): Case => {
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   // Authentication status
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    const savedAuth = localStorage.getItem(LOCAL_STORAGE_AUTH_KEY);
-    if (savedAuth !== null) {
-      return savedAuth === 'true';
-    }
-    // Default to true for convenience if user already had a saved session, or false for clean login
-    const savedUser = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
-    return !!savedUser;
-  });
-
-  // Users state
-  const [users, setUsers] = useState<User[]>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_USERS_KEY);
-    if (saved) {
-      try { 
-        const parsed = JSON.parse(saved); 
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const filtered = parsed
-            .filter((u: any) => 
-              u.agencyType !== 'POLICE' && 
-              u.agencyType !== 'DILG' && 
-              u.role !== 'POLICE_CHIEF' && 
-              u.role !== 'POLICE_OFFICER' &&
-              u.role !== 'DILG_DIRECTOR' &&
-              u.role !== 'DILG_OFFICER'
-            )
-            .map((u: User) => ({
-              ...u,
-              passcode: u.passcode || 'jarinyes'
-            }));
-          if (filtered.length > 0) return filtered;
-        }
-      } catch {}
-    }
-    return SEED_USERS;
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
 
   // Current user / role
-  const [currentUser, setCurrentUserState] = useState<User>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_USER_KEY);
-    if (saved) {
-      try { 
-        const parsed = JSON.parse(saved); 
-        if (parsed && typeof parsed === 'object' && parsed.id && parsed.name && (parsed.agencyType as any) !== 'POLICE' && (parsed.agencyType as any) !== 'DILG') {
-          return parsed;
+  const [currentUser, setCurrentUserState] = useState<User>(SEED_USERS[0]); // Default fallback
+
+  useEffect(() => {
+    // Check session on mount
+    fetch('/api/auth/me')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.user) {
+          setCurrentUserState(data.user);
+          setIsAuthenticated(true);
         }
-      } catch {}
-    }
-    return SEED_USERS[0]; // Barangay San Aquilino / Master Admin
-  });
+      })
+      .catch(console.error)
+      .finally(() => setIsAuthLoading(false));
+  }, []);
+
+  // Users state (kept in memory for the UI to list, but in a real app would be fetched)
+  const [users, setUsers] = useState<User[]>(SEED_USERS);
 
   const login = (user: User) => {
     setCurrentUserState(user);
     setIsAuthenticated(true);
-    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
-    localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, 'true');
     logActivity('USER_LOGIN', undefined, `Officer ${user.name} (${user.position}, ${user.agencyName}) logged in to B-CONNECT.`);
   };
 
-  const loginWithCredentials = (emailOrId: string, passcode?: string): { success: boolean; message?: string } => {
+  const loginWithCredentials = async (emailOrId: string, passcode?: string): Promise<{ success: boolean; message?: string }> => {
     const cleanQuery = emailOrId.trim().toLowerCase();
     if (!cleanQuery) {
       return { success: false, message: 'Please enter your Official Email, User ID, or Badge ID.' };
     }
-
-    const matchedUser = (users || []).find((u) => 
-      u.email.toLowerCase() === cleanQuery || 
-      u.id.toLowerCase() === cleanQuery || 
-      (u.badgeOrIdNumber && u.badgeOrIdNumber.toLowerCase() === cleanQuery) ||
-      u.name.toLowerCase() === cleanQuery ||
-      u.name.toLowerCase().includes(cleanQuery)
-    );
-
-    if (matchedUser) {
-      const cleanPass = (passcode || '').trim();
-      const expectedPass = (matchedUser.passcode || 'jarinyes').trim();
-
-      if (!cleanPass) {
-        return {
-          success: false,
-          message: 'Please enter your password / passcode.'
-        };
-      }
-
-      // Check if password matches the user's registered password
-      if (cleanPass !== expectedPass) {
-        return {
-          success: false,
-          message: 'Incorrect password. The password you entered does not match this account.'
-        };
-      }
-
-      login(matchedUser);
-      return { success: true };
+    if (!passcode?.trim()) {
+      return { success: false, message: 'Please enter your password / passcode.' };
     }
 
-    return { 
-      success: false, 
-      message: 'Authentication failed. No officer account found matching the provided identifier.' 
-    };
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ emailOrId: cleanQuery, passcode: passcode.trim() })
+      });
+      const data = await response.json();
+
+      if (data.success && data.user) {
+        login(data.user);
+        return { success: true };
+      }
+
+      return { success: false, message: data.message || 'Authentication failed.' };
+    } catch (error) {
+      return { success: false, message: 'Network error. Please try again later.' };
+    }
   };
 
-  const logout = () => {
+  const logout = async () => {
     logActivity('USER_LOGOUT', undefined, `Officer ${currentUser.name} logged out.`);
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
     setIsAuthenticated(false);
-    localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, 'false');
   };
 
   const setCurrentUser = (user: User) => {
     setCurrentUserState(user);
     setIsAuthenticated(true);
-    localStorage.setItem(LOCAL_STORAGE_USER_KEY, JSON.stringify(user));
-    localStorage.setItem(LOCAL_STORAGE_AUTH_KEY, 'true');
     logActivity('USER_ROLE_SWITCH', undefined, `Switched active session to ${user.name} (${user.position}, ${user.agencyName})`);
   };
 

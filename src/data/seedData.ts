@@ -12,7 +12,6 @@ export const SEED_USERS: User[] = [
     position: 'Punong Barangay & Traffic Safety Desk',
     badgeOrIdNumber: 'PB-SAQ-2026',
     email: 'brgy.sanaquilino@roxas.gov.ph',
-    passcode: 'jarinyes',
     avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
   },
 
@@ -26,7 +25,6 @@ export const SEED_USERS: User[] = [
     position: 'Municipal Administrator & Traffic Safety Director',
     badgeOrIdNumber: 'LGU-ROX-ADM-01',
     email: 'admin.lgu@roxas.gov.ph',
-    passcode: 'jarinyes',
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
   },
   {
@@ -38,7 +36,6 @@ export const SEED_USERS: User[] = [
     position: 'Master Governance Node Administrator',
     badgeOrIdNumber: 'SYS-ADM-01',
     email: 'admin@bconnect.gov.ph',
-    passcode: 'jarinyes',
     avatarUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80'
   },
   // --- VERIFIED RESIDENT CITIZEN ACCOUNT ---
@@ -52,7 +49,6 @@ export const SEED_USERS: User[] = [
     position: 'Verified Resident Citizen',
     badgeOrIdNumber: 'RES-SAQ-0892',
     email: 'maria.santos@gmail.com',
-    passcode: 'jarinyes',
     phone: '0917-555-2144',
     address: 'Purok 2, San Aquilino, Roxas, Oriental Mindoro',
     avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'

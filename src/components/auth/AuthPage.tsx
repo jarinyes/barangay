@@ -142,7 +142,7 @@ export const AuthPage: React.FC = () => {
     }
   };
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError(null);
 
@@ -151,7 +151,7 @@ export const AuthPage: React.FC = () => {
       return;
     }
 
-    const result = loginWithCredentials(loginIdentifier, loginPasscode);
+    const result = await loginWithCredentials(loginIdentifier, loginPasscode);
     if (!result.success) {
       setLoginError(result.message || 'Account not found. Please verify your credentials or register a new account.');
     }
