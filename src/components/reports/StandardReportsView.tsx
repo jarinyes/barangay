@@ -11,13 +11,13 @@ import {
   CheckCircle,
   FileSpreadsheet
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useCases } from '../../hooks/useCases';
 import { exportToCsv, formatDateShort } from '../../utils/reportGenerators';
 import { StatusBadge } from '../common/StatusBadge';
 import { ROXAS_BARANGAYS } from '../../types';
 
 export const StandardReportsView: React.FC = () => {
-  const { cases, setSelectedCaseId } = useApp();
+  const { cases, setSelectedCaseId } = useCases();
   const [reportType, setReportType] = useState<'DAILY' | 'MONTHLY' | 'QUARTERLY_KP' | 'POLICE_BLOTTER' | 'LGU_LOG'>('DAILY');
 
   const handleExportCsv = () => {

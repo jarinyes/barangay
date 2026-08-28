@@ -21,18 +21,16 @@ import {
   LogOut,
   Compass
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useCases } from '../../hooks/useCases';
+import { useNotifications } from '../../hooks/useNotifications';
+import { useUI } from '../../hooks/useUI';
 
 export const Sidebar: React.FC = () => {
-  const { 
-    currentUser, 
-    activeTab, 
-    setActiveTab, 
-    cases, 
-    unreadNotifCount,
-    setIsCreateAccountModalOpen,
-    logout
-  } = useApp();
+  const { currentUser, logout } = useAuth();
+  const { cases } = useCases();
+  const { unreadNotifCount } = useNotifications();
+  const { activeTab, setActiveTab, setIsCreateAccountModalOpen } = useUI();
 
   const safeCases = cases || [];
   const officialComplaintsCount = safeCases.filter((c) => c.isInvolvingOfficial).length;

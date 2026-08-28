@@ -13,28 +13,17 @@ import {
   ArrowRightLeft,
   FileText
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useCases } from '../../hooks/useCases';
+import { useUI } from '../../hooks/useUI';
 import { StatusBadge, PriorityBadge, OfficialBadge } from '../common/StatusBadge';
 import { ROXAS_BARANGAYS, IncidentCategory } from '../../types';
 import { formatDateShort, exportToCsv } from '../../utils/reportGenerators';
 
 export const CaseList: React.FC = () => {
-  const { 
-    currentUser,
-    cases, 
-    setSelectedCaseId, 
-    setIsNewCaseModalOpen, 
-    searchQuery, 
-    setSearchQuery,
-    filterBarangay, 
-    setFilterBarangay,
-    filterStatus, 
-    setFilterStatus,
-    filterCategory, 
-    setFilterCategory,
-    filterOfficialInvolved, 
-    setFilterOfficialInvolved
-  } = useApp();
+  const { currentUser } = useAuth();
+  const { cases, setSelectedCaseId } = useCases();
+  const { setIsNewCaseModalOpen, searchQuery, setSearchQuery, filterBarangay, setFilterBarangay, filterStatus, setFilterStatus, filterCategory, setFilterCategory, filterOfficialInvolved, setFilterOfficialInvolved } = useUI();
 
   const isBarangayOfficer = currentUser?.agencyType === 'BARANGAY' && !!currentUser?.barangay;
   const userBarangay = currentUser?.barangay;

@@ -16,20 +16,18 @@ import {
   Ambulance,
   Radio
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useCases } from '../../hooks/useCases';
+import { useNotifications } from '../../hooks/useNotifications';
+import { useUI } from '../../hooks/useUI';
 import { playAccidentAlarmSound, stopAccidentAlarmSound, playActionBeep } from '../../utils/alarmAudio';
 import { formatDate } from '../../utils/reportGenerators';
 
 export const EmergencyAccidentAlarmModal: React.FC = () => {
-  const { 
-    currentUser, 
-    notifications, 
-    cases, 
-    setSelectedCaseId, 
-    setActiveTab, 
-    addCaseTimelineEvent,
-    logActivity 
-  } = useApp();
+  const { currentUser } = useAuth();
+  const { cases, setSelectedCaseId, addCaseTimelineEvent, logActivity } = useCases();
+  const { notifications } = useNotifications();
+  const { setActiveTab } = useUI();
 
   const [activeAccidentNotif, setActiveAccidentNotif] = useState<any | null>(null);
   const [isMuted, setIsMuted] = useState(false);

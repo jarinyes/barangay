@@ -13,7 +13,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
 import { AgencyType, UserRole, ROXAS_BARANGAYS, User as UserType } from '../../types';
 
 interface PresetAvatar {
@@ -61,7 +61,7 @@ const POSITION_SUGGESTIONS: Record<AgencyType, string[]> = {
 };
 
 export const AuthPage: React.FC = () => {
-  const { login, loginWithCredentials, registerUser } = useApp();
+  const { login, loginWithCredentials, registerUser } = useAuth();
 
   // Mode: 'login' | 'register'
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');

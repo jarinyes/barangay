@@ -16,22 +16,15 @@ import {
   Trash2,
   Edit3
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useCases } from '../../hooks/useCases';
+import { useUI } from '../../hooks/useUI';
 import { AGENCIES_LIST, ROXAS_BARANGAYS } from '../../types';
 
 export const SystemAdminView: React.FC = () => {
-  const { 
-    cases, 
-    auditLogs, 
-    users, 
-    currentUser, 
-    setCurrentUser, 
-    setIsCreateAccountModalOpen, 
-    openEditAccountModal,
-    resetToDefaults,
-    deleteUser,
-    clearAllUsers 
-  } = useApp();
+  const { users, currentUser, setCurrentUser, resetToDefaults, deleteUser, clearAllUsers } = useAuth();
+  const { cases, auditLogs } = useCases();
+  const { setIsCreateAccountModalOpen, openEditAccountModal } = useUI();
 
   const handleExportFullJson = () => {
     const fullBackup = {

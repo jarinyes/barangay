@@ -10,12 +10,14 @@ import {
   FolderLock,
   ArrowUpRight
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useCases } from '../../hooks/useCases';
+import { useUI } from '../../hooks/useUI';
 import { StatusBadge, PriorityBadge } from '../common/StatusBadge';
 import { formatDateShort } from '../../utils/reportGenerators';
 
 export const PoliceDashboard: React.FC = () => {
-  const { cases, setSelectedCaseId, setActiveTab } = useApp();
+  const { cases, setSelectedCaseId } = useCases();
+  const { setActiveTab } = useUI();
 
   const policeCases = cases.filter(
     (c) => c.isReferredToPolice || c.currentHandlingAgency.includes('Police') || c.status === 'Referred to Police Station'

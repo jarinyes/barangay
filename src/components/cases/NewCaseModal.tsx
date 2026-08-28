@@ -15,7 +15,9 @@ import {
   Activity,
   Ambulance
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useCases } from '../../hooks/useCases';
+import { useUI } from '../../hooks/useUI';
 import { 
   ROXAS_BARANGAYS, 
   IncidentCategory, 
@@ -26,12 +28,9 @@ import {
 } from '../../types';
 
 export const NewCaseModal: React.FC = () => {
-  const { 
-    isNewCaseModalOpen, 
-    setIsNewCaseModalOpen, 
-    createCase, 
-    currentUser 
-  } = useApp();
+  const { currentUser } = useAuth();
+  const { createCase } = useCases();
+  const { isNewCaseModalOpen, setIsNewCaseModalOpen } = useUI();
 
   const isBarangayOfficer = currentUser?.agencyType === 'BARANGAY' && !!currentUser?.barangay;
 

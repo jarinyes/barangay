@@ -28,7 +28,10 @@ import {
   X,
   MessageSquare
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useCases } from '../../hooks/useCases';
+import { useNotifications } from '../../hooks/useNotifications';
+import { useUI } from '../../hooks/useUI';
 import { 
   ROXAS_BARANGAYS, 
   IncidentCategory, 
@@ -42,14 +45,10 @@ import { StatusBadge, PriorityBadge } from '../common/StatusBadge';
 
 
 export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' | 'my_reports' | 'directory' }> = ({ initialTab = 'overview' }) => {
-  const { 
-    currentUser, 
-    cases, 
-    createCase, 
-    setSelectedCaseId, 
-    setActiveTab,
-    triggerNotification
-  } = useApp();
+  const { currentUser } = useAuth();
+  const { cases, createCase, setSelectedCaseId } = useCases();
+  const { triggerNotification } = useNotifications();
+  const { setActiveTab } = useUI();
 
   const [portalTab, setPortalTab] = useState<'overview' | 'submit' | 'my_reports' | 'directory'>(initialTab);
   

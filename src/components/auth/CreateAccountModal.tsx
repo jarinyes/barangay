@@ -16,7 +16,8 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useUI } from '../../hooks/useUI';
 import { AgencyType, UserRole, ROXAS_BARANGAYS, User } from '../../types';
 
 interface PresetAvatar {
@@ -64,12 +65,8 @@ const POSITION_SUGGESTIONS: Record<AgencyType, string[]> = {
 };
 
 export const CreateAccountModal: React.FC = () => {
-  const { 
-    isCreateAccountModalOpen, 
-    setIsCreateAccountModalOpen, 
-    registerUser, 
-    setCurrentUser 
-  } = useApp();
+  const { registerUser, setCurrentUser } = useAuth();
+  const { isCreateAccountModalOpen, setIsCreateAccountModalOpen } = useUI();
 
   const [name, setName] = useState('');
   const [agencyType, setAgencyType] = useState<AgencyType>('BARANGAY');

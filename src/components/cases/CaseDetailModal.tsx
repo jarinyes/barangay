@@ -20,19 +20,15 @@ import {
   Layers,
   Sparkles
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useCases } from '../../hooks/useCases';
 import { StatusBadge, PriorityBadge, OfficialBadge } from '../common/StatusBadge';
 import { CaseStatus, TimelineEvent, AGENCIES_LIST } from '../../types';
 import { formatDate, formatDateShort } from '../../utils/reportGenerators';
 
 export const CaseDetailModal: React.FC = () => {
-  const { 
-    selectedCase, 
-    setSelectedCaseId, 
-    currentUser, 
-    updateCaseStatus, 
-    addCaseTimelineEvent
-  } = useApp();
+  const { currentUser } = useAuth();
+  const { selectedCase, setSelectedCaseId, updateCaseStatus, addCaseTimelineEvent } = useCases();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'timeline'>('overview');
   

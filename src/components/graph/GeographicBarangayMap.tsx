@@ -30,7 +30,8 @@ import {
   Radio,
   ExternalLink
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useCases } from '../../hooks/useCases';
 import { Case, ROXAS_BARANGAYS } from '../../types';
 
 // Accurate real-world geographic coordinates from PhilAtlas & PSA for the 6 Official Barangays of Roxas, Oriental Mindoro
@@ -240,7 +241,8 @@ const MAP_TILE_CONFIGS: TileConfig[] = [
 type GisViewMode = 'all' | 'heatmap' | 'pending' | 'officials' | 'referrals';
 
 export const GeographicBarangayMap: React.FC = () => {
-  const { cases, setSelectedCaseId, currentUser } = useApp();
+  const { currentUser } = useAuth();
+  const { cases, setSelectedCaseId } = useCases();
 
   // Map Container Reference
   const mapContainerRef = useRef<HTMLDivElement | null>(null);

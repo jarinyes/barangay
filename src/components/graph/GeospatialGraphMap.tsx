@@ -27,7 +27,7 @@ import {
   Flame, 
   Network
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useCases } from '../../hooks/useCases';
 import { Case, GraphNode, GraphEdge, GraphCluster, ROXAS_BARANGAYS } from '../../types';
 import { SYSTEM_BARANGAYS_GEO, MUNICIPAL_AGENCY_HUBS } from './GeographicBarangayMap';
 import { findDetailedPath, DetailedPath } from '../../utils/graphEngine';
@@ -115,7 +115,7 @@ export const GeospatialGraphMap: React.FC<GeospatialGraphMapProps> = ({
   setScopeFilter,
   activeCasesCount
 }) => {
-  const { cases, setSelectedCaseId } = useApp();
+  const { cases, setSelectedCaseId } = useCases();
 
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);

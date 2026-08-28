@@ -10,11 +10,11 @@ import {
   Clock,
   Lock
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useCases } from '../../hooks/useCases';
 import { formatDate, exportToCsv } from '../../utils/reportGenerators';
 
 export const AuditTrailView: React.FC = () => {
-  const { auditLogs } = useApp();
+  const { auditLogs } = useCases();
   const [search, setSearch] = useState('');
   const [actionFilter, setActionFilter] = useState('ALL');
   const [agencyFilter, setAgencyFilter] = useState('ALL');
