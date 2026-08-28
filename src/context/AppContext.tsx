@@ -16,6 +16,7 @@ import { SEED_USERS, SEED_CASES, SEED_AUDIT_LOGS, SEED_NOTIFICATIONS } from '../
 import { buildGraphFromCases } from '../utils/graphEngine';
 import { calculateDaysDifference } from '../utils/reportGenerators';
 import { filterNotificationsForUser } from '../utils/notificationHelpers';
+import { supabase } from '../utils/supabaseClient';
 
 interface AppContextType {
   isAuthenticated: boolean;
@@ -135,17 +136,47 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [currentUser, setCurrentUserState] = useState<User>(SEED_USERS[0]); // Default fallback
 
   useEffect(() => {
-    // Check session on mount
-    fetch('/api/auth/me')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.user) {
-          setCurrentUserState(data.user);
+    const checkSession = async () => {
+      setIsAuthLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+          
+        if (profile) {
+          setCurrentUserState(profile as User);
           setIsAuthenticated(true);
         }
-      })
-      .catch(console.error)
-      .finally(() => setIsAuthLoading(false));
+      }
+      setIsAuthLoading(false);
+    };
+    
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+          
+        if (profile) {
+          setCurrentUserState(profile as User);
+          setIsAuthenticated(true);
+        }
+      } else {
+        setIsAuthenticated(false);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   // Users state (kept in memory for the UI to list, but in a real app would be fetched)
@@ -160,26 +191,23 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const loginWithCredentials = async (emailOrId: string, passcode?: string): Promise<{ success: boolean; message?: string }> => {
     const cleanQuery = emailOrId.trim().toLowerCase();
     if (!cleanQuery) {
-      return { success: false, message: 'Please enter your Official Email, User ID, or Badge ID.' };
+      return { success: false, message: 'Please enter your email.' };
     }
     if (!passcode?.trim()) {
       return { success: false, message: 'Please enter your password / passcode.' };
     }
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emailOrId: cleanQuery, passcode: passcode.trim() })
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: cleanQuery,
+        password: passcode.trim()
       });
-      const data = await response.json();
 
-      if (data.success && data.user) {
-        login(data.user);
-        return { success: true };
+      if (error) {
+        return { success: false, message: error.message };
       }
-
-      return { success: false, message: data.message || 'Authentication failed.' };
+      
+      return { success: true };
     } catch (error) {
       return { success: false, message: 'Network error. Please try again later.' };
     }
@@ -188,7 +216,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const logout = async () => {
     logActivity('USER_LOGOUT', undefined, `Officer ${currentUser.name} logged out.`);
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await supabase.auth.signOut();
     } catch (error) {
       console.error('Logout error:', error);
     }
