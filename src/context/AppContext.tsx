@@ -329,54 +329,41 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   // Cases state
-  const [cases, setCases] = useState<Case[]>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_CASES_KEY);
-    if (saved) {
-      try { 
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed.map((c: any) => sanitizeCaseBarangay(c));
-        }
-      } catch {}
-    }
-    return SEED_CASES.map((c) => sanitizeCaseBarangay(c));
-  });
+  const [cases, setCases] = useState<Case[]>([]);
 
   // Audit logs state
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_LOGS_KEY);
-    if (saved) {
-      try { 
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
-      } catch {}
-    }
-    return SEED_AUDIT_LOGS;
-  });
+  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
 
   // Notifications state
-  const [notifications, setNotifications] = useState<NotificationItem[]>(() => {
-    const saved = localStorage.getItem(LOCAL_STORAGE_NOTIFS_KEY);
-    if (saved) {
-      try { 
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          const seenIds = new Set<string>();
-          const deduped: NotificationItem[] = [];
-          parsed.forEach((n: any, idx: number) => {
-            let cleanId = n?.id ? String(n.id) : `NOTIF-${Date.now()}-${idx}`;
-            if (seenIds.has(cleanId)) {
-              cleanId = `${cleanId}-${idx}-${Math.random().toString(36).substring(2, 6)}`;
-            }
-            seenIds.add(cleanId);
-            deduped.push({ ...n, id: cleanId });
-          });
-          return deduped;
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+
+  // Fetch from Supabase on load
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!isAuthenticated) return;
+      try {
+        const [casesRes, logsRes, notifsRes] = await Promise.all([
+          supabase.from('cases').select('*').order('dateCreated', { ascending: false }),
+          supabase.from('audit_logs').select('*').order('timestamp', { ascending: false }),
+          supabase.from('notifications').select('*').order('timestamp', { ascending: false })
+        ]);
+
+        if (casesRes.data) {
+          setCases(casesRes.data.map((c: any) => sanitizeCaseBarangay(c)));
         }
-      } catch {}
-    }
-    return SEED_NOTIFICATIONS;
-  });
+        if (logsRes.data) {
+          setAuditLogs(logsRes.data as AuditLog[]);
+        }
+        if (notifsRes.data) {
+          setNotifications(notifsRes.data as NotificationItem[]);
+        }
+      } catch (err) {
+        console.error('Error fetching data from Supabase:', err);
+      }
+    };
+
+    fetchData();
+  }, [isAuthenticated]);
 
   // UI Navigation & Filters
   const [activeTab, setActiveTab] = useState<string>('dashboard');
@@ -415,17 +402,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, [currentUser]);
 
   // Persistence effects
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_CASES_KEY, JSON.stringify(cases));
-  }, [cases]);
-
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_LOGS_KEY, JSON.stringify(auditLogs));
-  }, [auditLogs]);
-
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_NOTIFS_KEY, JSON.stringify(notifications));
-  }, [notifications]);
+  // Removed localStorage sync effects as we now use Supabase
 
   // Selected case helper
   const selectedCase = useMemo(() => {
@@ -469,6 +446,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       ipAddress: '192.168.1.104 (LGU-Secure-VPN)'
     };
     setAuditLogs((prev) => [newLog, ...prev]);
+    supabase.from('audit_logs').insert(newLog).then(({error}) => { if (error) console.error(error) });
   };
 
   // Notification helper
@@ -507,6 +485,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       actionUrl: options?.actionUrl
     };
     setNotifications((prev) => [newNotif, ...(prev || [])]);
+    supabase.from('notifications').insert(newNotif).then(({error}) => { if (error) console.error(error) });
   };
 
   // Case Operations
@@ -610,6 +589,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     setCases((prev) => [newCaseItem, ...prev]);
+    supabase.from('cases').insert(newCaseItem).then(({error}) => { if (error) console.error(error) });
 
     logActivity(
       'CASE_CREATED', 
@@ -728,7 +708,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           timestamp: now
         };
 
-        return {
+        const updatedCase = {
           ...c,
           status: newStatus,
           dateResolved: isNowResolved ? now : c.dateResolved,
@@ -737,6 +717,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           statusHistory: [newStatusItem, ...c.statusHistory],
           timeline: [...c.timeline, newTimelineEvent],
         };
+
+        supabase.from('cases').update({
+          status: updatedCase.status,
+          dateResolved: updatedCase.dateResolved,
+          resolutionSummary: updatedCase.resolutionSummary,
+          dateLastUpdated: updatedCase.dateLastUpdated,
+          statusHistory: updatedCase.statusHistory,
+          timeline: updatedCase.timeline
+        }).eq('id', caseId).then(({error}) => { if (error) console.error(error) });
+
+        return updatedCase;
       })
     );
 
@@ -780,11 +771,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setCases((prev) =>
       prev.map((c) => {
         if (c.id !== caseId) return c;
-        return {
+        const updatedCase = {
           ...c,
           timeline: [...c.timeline, newEvent],
           dateLastUpdated: now
         };
+
+        supabase.from('cases').update({
+          timeline: updatedCase.timeline,
+          dateLastUpdated: updatedCase.dateLastUpdated
+        }).eq('id', caseId).then(({error}) => { if (error) console.error(error) });
+
+        return updatedCase;
       })
     );
 
@@ -795,10 +793,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
     );
+    supabase.from('notifications').update({ isRead: true }).eq('id', id).then(({error}) => { if (error) console.error(error) });
   };
 
   const markAllNotificationsAsRead = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    supabase.from('notifications').update({ isRead: true }).eq('isRead', false).then(({error}) => { if (error) console.error(error) });
   };
 
   const resetToDefaults = () => {
