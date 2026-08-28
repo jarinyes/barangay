@@ -197,6 +197,7 @@ export interface Case {
 
   statusHistory: StatusHistoryItem[];
   timeline: TimelineEvent[];
+  imageUrls?: string[];
   
   // Metadata
   dateCreated: string;

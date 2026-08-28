@@ -137,6 +137,7 @@ export const useCases = () => {
         }
       ],
       timeline: initialTimeline,
+      imageUrls: data.imageUrls || [],
       dateCreated: now,
       dateLastUpdated: now,
       createdBy: `${currentUser.name} (${currentUser.agencyName})`,

@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS public.cases (
   "vehiclesInvolved" JSONB DEFAULT '[]'::jsonb,
   "statusHistory" JSONB DEFAULT '[]'::jsonb,
   timeline JSONB DEFAULT '[]'::jsonb,
+  "imageUrls" JSONB DEFAULT '[]'::jsonb,
   
   -- Tracking
   "isInvolvingOfficial" BOOLEAN DEFAULT false,
@@ -187,3 +188,18 @@ DROP POLICY IF EXISTS "Allow authenticated users to insert notifications" ON pub
 CREATE POLICY "Allow authenticated users to insert notifications" ON public.notifications FOR INSERT TO authenticated WITH CHECK (true);
 DROP POLICY IF EXISTS "Allow authenticated users to update notifications" ON public.notifications;
 CREATE POLICY "Allow authenticated users to update notifications" ON public.notifications FOR UPDATE TO authenticated USING (true);
+
+
+-- Storage Bucket for Report Images
+INSERT INTO storage.buckets (id, name, public) 
+VALUES ('report-images', 'report-images', true)
+ON CONFLICT (id) DO NOTHING;
+
+-- Storage Policies for 'report-images' bucket
+DROP POLICY IF EXISTS "Allow public to read report images" ON storage.objects;
+CREATE POLICY "Allow public to read report images" ON storage.objects 
+  FOR SELECT USING (bucket_id = 'report-images');
+
+DROP POLICY IF EXISTS "Allow authenticated to upload report images" ON storage.objects;
+CREATE POLICY "Allow authenticated to upload report images" ON storage.objects 
+  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'report-images');
