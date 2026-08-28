@@ -67,7 +67,7 @@ export const CreateAccountModal: React.FC = () => {
   const { 
     isCreateAccountModalOpen, 
     setIsCreateAccountModalOpen, 
-    addUser, 
+    registerUser, 
     setCurrentUser 
   } = useApp();
 
@@ -128,7 +128,7 @@ export const CreateAccountModal: React.FC = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -159,7 +159,7 @@ export const CreateAccountModal: React.FC = () => {
 
     const cleanEmail = email.trim() || `${name.toLowerCase().replace(/[^a-z0-9]/g, '.')}@${agencyType === 'BARANGAY' ? `${barangay.toLowerCase()}.` : ''}roxas.gov.ph`;
 
-    const newUserPayload: Omit<User, 'id'> = {
+    const newUserPayload: Omit<User, 'id'> & { passcode: string } = {
       name: name.trim(),
       role,
       agencyType,
@@ -172,15 +172,19 @@ export const CreateAccountModal: React.FC = () => {
       avatarUrl: selectedAvatar
     };
 
-    addUser(newUserPayload);
+    try {
+      await registerUser(newUserPayload);
 
-    // Reset and close
-    setName('');
-    setEmail('');
-    setBadgeOrIdNumber('');
-    setPasscode('jarinyes');
-    setConfirmPasscode('jarinyes');
-    setIsCreateAccountModalOpen(false);
+      // Reset and close
+      setName('');
+      setEmail('');
+      setBadgeOrIdNumber('');
+      setPasscode('jarinyes');
+      setConfirmPasscode('jarinyes');
+      setIsCreateAccountModalOpen(false);
+    } catch (error: any) {
+      setError(error.message || 'Registration failed. Please try again.');
+    }
   };
 
   return (

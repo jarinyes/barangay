@@ -26,7 +26,7 @@ interface AppContextType {
   currentUser: User;
   setCurrentUser: (user: User) => void;
   users: User[];
-  addUser: (newUser: Omit<User, 'id'> & { id?: string }) => User;
+  registerUser: (newUserData: Omit<User, 'id'> & { id?: string, passcode?: string }) => Promise<User>;
   updateUser: (userId: string, updatedData: Partial<User>) => User | null;
   deleteUser: (userId: string) => void;
   clearAllUsers: () => void;
@@ -229,12 +229,40 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     logActivity('USER_ROLE_SWITCH', undefined, `Switched active session to ${user.name} (${user.position}, ${user.agencyName})`);
   };
 
-  const addUser = (newUserData: Omit<User, 'id'> & { id?: string }): User => {
-    const userId = newUserData.id || `USR-${newUserData.agencyType.slice(0, 3)}-${String((users?.length || 0) + 1).padStart(2, '0')}`;
+  const registerUser = async (newUserData: Omit<User, 'id'> & { id?: string, passcode?: string }): Promise<User> => {
+    // 1. Sign up user to Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: newUserData.email || '',
+      password: newUserData.passcode || '',
+      options: {
+        data: {
+          name: newUserData.name,
+          role: newUserData.role,
+        }
+      }
+    });
+
+    if (authError) {
+      throw authError;
+    }
+
+    const authUserId = authData.user?.id;
+    const userId = authUserId || newUserData.id || `USR-${newUserData.agencyType.slice(0, 3)}-${String((users?.length || 0) + 1).padStart(2, '0')}`;
+    
+    // Create user object for the database (without passcode)
+    const { passcode, ...restUserData } = newUserData as any;
+
     const newUser: User = {
-      ...newUserData,
+      ...restUserData,
       id: userId
     };
+
+    // 2. Insert user profile into public users table
+    const { error: dbError } = await supabase.from('users').insert(newUser);
+
+    if (dbError) {
+      throw dbError;
+    }
 
     setUsers((prev) => {
       const updated = [...(prev || []), newUser];
@@ -825,7 +853,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         currentUser,
         setCurrentUser,
         users,
-        addUser,
+        registerUser,
         updateUser,
         deleteUser,
         clearAllUsers,
