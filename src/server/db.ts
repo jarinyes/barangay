@@ -1,31 +1,25 @@
-import sqlite3 from 'sqlite3';
-import { open, Database } from 'sqlite';
+import pg from 'pg';
 import bcrypt from 'bcrypt';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { SEED_USERS } from '../data/seedData.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const dbPath = path.resolve(__dirname, '../../users.db');
+const { Pool } = pg;
 
-let db: Database | null = null;
+let pool: pg.Pool | null = null;
 
-export async function getDb(): Promise<Database> {
-  if (db) return db;
+export async function getDb(): Promise<pg.Pool> {
+  if (pool) return pool;
 
-  db = await open({
-    filename: dbPath,
-    driver: sqlite3.Database
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL
   });
 
-  await initializeDb(db);
-  return db;
+  await initializeDb(pool);
+  return pool;
 }
 
-async function initializeDb(database: Database) {
+async function initializeDb(dbPool: pg.Pool) {
   // Create users table
-  await database.exec(`
+  await dbPool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
@@ -44,9 +38,10 @@ async function initializeDb(database: Database) {
   `);
 
   // Check if users exist
-  const userCount = await database.get('SELECT COUNT(*) as count FROM users');
+  const res = await dbPool.query('SELECT COUNT(*) as count FROM users');
+  const userCount = parseInt(res.rows[0].count, 10);
   
-  if (userCount.count === 0) {
+  if (userCount === 0) {
     console.log('Seeding initial users into database...');
     
     for (const user of SEED_USERS) {
@@ -55,11 +50,11 @@ async function initializeDb(database: Database) {
       const saltRounds = 10;
       const passcodeHash = await bcrypt.hash(plainPassword, saltRounds);
 
-      await database.run(
+      await dbPool.query(
         `INSERT INTO users (
           id, name, role, agencyType, agencyName, barangay, position, 
           badgeOrIdNumber, email, passcodeHash, phone, address, avatarUrl
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
         [
           user.id,
           user.name,

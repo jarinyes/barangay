@@ -18,7 +18,8 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as any;
     const db = await getDb();
-    const user = await db.get('SELECT * FROM users WHERE id = ?', [decoded.id]);
+    const result = await db.query('SELECT * FROM users WHERE id = $1', [decoded.id]);
+    const user = result.rows[0];
     
     if (!user) {
       res.status(401).json({ success: false, message: 'User not found' });
@@ -48,10 +49,11 @@ router.post('/login', async (req: Request, res: Response) => {
     
     // Find user by email, id, badgeOrIdNumber or name (since previous logic allowed name matching)
     // Note: Name matching is risky for auth, but to keep backwards compatibility with the requested behavior:
-    const user = await db.get(
-      'SELECT * FROM users WHERE LOWER(email) = ? OR LOWER(id) = ? OR LOWER(badgeOrIdNumber) = ? OR LOWER(name) LIKE ?',
+    const result = await db.query(
+      'SELECT * FROM users WHERE LOWER(email) = $1 OR LOWER(id) = $2 OR LOWER(badgeOrIdNumber) = $3 OR LOWER(name) LIKE $4',
       [cleanQuery, cleanQuery, cleanQuery, `%${cleanQuery}%`]
     );
+    const user = result.rows[0];
 
     if (!user) {
       res.status(401).json({ success: false, message: 'Authentication failed. No officer account found matching the provided identifier.' });
