@@ -13,7 +13,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
 import { AgencyType, UserRole, ROXAS_BARANGAYS, User as UserType } from '../../types';
 
 interface PresetAvatar {
@@ -61,7 +61,7 @@ const POSITION_SUGGESTIONS: Record<AgencyType, string[]> = {
 };
 
 export const AuthPage: React.FC = () => {
-  const { login, loginWithCredentials, addUser } = useApp();
+  const { login, loginWithCredentials, registerUser } = useAuth();
 
   // Mode: 'login' | 'register'
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
@@ -142,7 +142,7 @@ export const AuthPage: React.FC = () => {
     }
   };
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginError(null);
 
@@ -151,13 +151,13 @@ export const AuthPage: React.FC = () => {
       return;
     }
 
-    const result = loginWithCredentials(loginIdentifier, loginPasscode);
+    const result = await loginWithCredentials(loginIdentifier, loginPasscode);
     if (!result.success) {
       setLoginError(result.message || 'Account not found. Please verify your credentials or register a new account.');
     }
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setRegError(null);
 
@@ -188,7 +188,7 @@ export const AuthPage: React.FC = () => {
 
     const cleanEmail = regEmail.trim() || `${regName.toLowerCase().replace(/[^a-z0-9]/g, '.')}@${regAgencyType === 'BARANGAY' ? `${regBarangay.toLowerCase()}.` : ''}roxas.gov.ph`;
 
-    const newUserPayload: Omit<UserType, 'id'> = {
+    const newUserPayload: Omit<UserType, 'id'> & { passcode: string } = {
       name: regName.trim(),
       role: regRole,
       agencyType: regAgencyType,
@@ -201,9 +201,13 @@ export const AuthPage: React.FC = () => {
       avatarUrl: regAvatar
     };
 
-    const createdUser = addUser(newUserPayload);
-    // Immediately log in with the newly created account
-    login(createdUser);
+    try {
+      const createdUser = await registerUser(newUserPayload);
+      // Immediately log in with the newly created account
+      login(createdUser);
+    } catch (error: any) {
+      setRegError(error.message || 'Registration failed. Please try again.');
+    }
   };
 
   return (

@@ -17,27 +17,19 @@ import {
   Clock,
   Sparkles
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useCases } from '../../hooks/useCases';
+import { useNotifications } from '../../hooks/useNotifications';
+import { useUI } from '../../hooks/useUI';
 import { formatDate } from '../../utils/reportGenerators';
 import { getRoleNotificationMeta } from '../../utils/notificationHelpers';
 import { CreateNotificationModal } from './CreateNotificationModal';
 
 export const Header: React.FC<{ onToggleSidebar?: () => void }> = () => {
-  const { 
-    currentUser, 
-    logout,
-    unreadNotifCount, 
-    userNotifications, 
-    markNotificationAsRead, 
-    markAllNotificationsAsRead,
-    setIsNewCaseModalOpen,
-    openEditAccountModal,
-    setSelectedCaseId,
-    setActiveTab,
-    searchQuery,
-    setSearchQuery,
-    activeTab
-  } = useApp();
+  const { currentUser, logout } = useAuth();
+  const { setSelectedCaseId } = useCases();
+  const { unreadNotifCount, userNotifications, markNotificationAsRead, markAllNotificationsAsRead } = useNotifications();
+  const { setIsNewCaseModalOpen, openEditAccountModal, setActiveTab, searchQuery, setSearchQuery, activeTab } = useUI();
 
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isRoleDropdownOpen, setIsRoleDropdownOpen] = useState(false);

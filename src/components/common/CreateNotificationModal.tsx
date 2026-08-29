@@ -12,7 +12,9 @@ import {
   Radio,
   Users
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useCases } from '../../hooks/useCases';
+import { useNotifications } from '../../hooks/useNotifications';
 import { AgencyType, UserRole, ROXAS_BARANGAYS, NotificationItem } from '../../types';
 
 interface CreateNotificationModalProps {
@@ -24,7 +26,9 @@ export const CreateNotificationModal: React.FC<CreateNotificationModalProps> = (
   isOpen,
   onClose
 }) => {
-  const { currentUser, triggerNotification, cases } = useApp();
+  const { currentUser } = useAuth();
+  const { cases } = useCases();
+  const { triggerNotification } = useNotifications();
 
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');

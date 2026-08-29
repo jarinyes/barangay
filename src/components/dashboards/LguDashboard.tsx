@@ -10,12 +10,14 @@ import {
   CheckCircle,
   Clock
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useCases } from '../../hooks/useCases';
+import { useUI } from '../../hooks/useUI';
 import { StatusBadge, PriorityBadge } from '../common/StatusBadge';
 import { ROXAS_BARANGAYS } from '../../types';
 
 export const LguDashboard: React.FC = () => {
-  const { cases, setSelectedCaseId, setActiveTab } = useApp();
+  const { cases, setSelectedCaseId } = useCases();
+  const { setActiveTab } = useUI();
 
   const totalCases = cases.length;
   const lguReferredCases = cases.filter((c) => c.isReferredToLgu || c.currentHandlingAgency.includes('Municipal'));

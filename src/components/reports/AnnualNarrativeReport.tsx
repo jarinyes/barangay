@@ -12,12 +12,12 @@ import {
   Calendar,
   AlertCircle
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useCases } from '../../hooks/useCases';
 import { generateAnnualStatistics, exportToCsv, formatDateShort } from '../../utils/reportGenerators';
 import { StatusBadge } from '../common/StatusBadge';
 
 export const AnnualNarrativeReport: React.FC = () => {
-  const { cases, setSelectedCaseId } = useApp();
+  const { cases, setSelectedCaseId } = useCases();
   const [selectedYear, setSelectedYear] = useState<number>(2026);
   const [selectedBarangay, setSelectedBarangay] = useState<string>('ALL');
 

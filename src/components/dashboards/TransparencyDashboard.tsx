@@ -9,12 +9,12 @@ import {
   FileText, 
   Lock
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useCases } from '../../hooks/useCases';
 import { generateAnnualStatistics } from '../../utils/reportGenerators';
 import { ROXAS_BARANGAYS } from '../../types';
 
 export const TransparencyDashboard: React.FC = () => {
-  const { cases } = useApp();
+  const { cases } = useCases();
   const currentYear = 2026;
   const stats = generateAnnualStatistics(cases, currentYear);
 

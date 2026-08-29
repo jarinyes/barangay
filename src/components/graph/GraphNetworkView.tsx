@@ -23,13 +23,13 @@ import {
   Network,
   Globe
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useCases } from '../../hooks/useCases';
 import { generateGraphData, findDetailedPath, DetailedPath } from '../../utils/graphEngine';
 import { GraphNode, GraphEdge, GraphCluster } from '../../types';
 import { GeospatialGraphMap } from './GeospatialGraphMap';
 
 export const GraphNetworkView: React.FC = () => {
-  const { cases, setSelectedCaseId } = useApp();
+  const { cases, setSelectedCaseId } = useCases();
 
   // Scope Filter: 'ACTIVE_ONLY' (Active cases/incidents only) vs 'ALL' (Include all historical cases)
   const [scopeFilter, setScopeFilter] = useState<'ACTIVE_ONLY' | 'ALL'>('ACTIVE_ONLY');

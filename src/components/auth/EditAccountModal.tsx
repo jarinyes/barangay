@@ -14,7 +14,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
 import { AgencyType, UserRole, ROXAS_BARANGAYS, User } from '../../types';
 
 interface EditAccountModalProps {
@@ -72,7 +72,7 @@ export const EditAccountModal: React.FC<EditAccountModalProps> = ({
   onClose,
   userToEdit
 }) => {
-  const { currentUser, updateUser } = useApp();
+  const { currentUser, updateUser } = useAuth();
   const targetUser = userToEdit || currentUser;
 
   const [name, setName] = useState('');

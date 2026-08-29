@@ -1,5 +1,7 @@
 import React from 'react';
-import { AppProvider, useApp } from './context/AppContext';
+import { AppProviders } from './context/AppProviders';
+import { useAuth } from './hooks/useAuth';
+import { useUI } from './hooks/useUI';
 import { AuthPage } from './components/auth/AuthPage';
 import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
@@ -22,14 +24,13 @@ import { ResidentPortalView } from './components/resident/ResidentPortalView';
 import { EmergencyAccidentAlarmModal } from './components/common/EmergencyAccidentAlarmModal';
 
 const AppContent: React.FC = () => {
+  const { isAuthenticated, currentUser } = useAuth();
   const { 
-    isAuthenticated, 
     activeTab, 
-    currentUser, 
     isEditAccountModalOpen, 
     setIsEditAccountModalOpen, 
     userToEdit 
-  } = useApp();
+  } = useUI();
 
   // If user is not authenticated, show Auth (Login & Create Account) Portal
   if (!isAuthenticated) {
@@ -148,8 +149,8 @@ const AppContent: React.FC = () => {
 
 export default function App() {
   return (
-    <AppProvider>
+    <AppProviders>
       <AppContent />
-    </AppProvider>
+    </AppProviders>
   );
 }

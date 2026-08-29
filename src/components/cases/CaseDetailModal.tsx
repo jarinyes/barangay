@@ -20,19 +20,15 @@ import {
   Layers,
   Sparkles
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useCases } from '../../hooks/useCases';
 import { StatusBadge, PriorityBadge, OfficialBadge } from '../common/StatusBadge';
 import { CaseStatus, TimelineEvent, AGENCIES_LIST } from '../../types';
 import { formatDate, formatDateShort } from '../../utils/reportGenerators';
 
 export const CaseDetailModal: React.FC = () => {
-  const { 
-    selectedCase, 
-    setSelectedCaseId, 
-    currentUser, 
-    updateCaseStatus, 
-    addCaseTimelineEvent
-  } = useApp();
+  const { currentUser } = useAuth();
+  const { selectedCase, setSelectedCaseId, updateCaseStatus, addCaseTimelineEvent } = useCases();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'timeline'>('overview');
   
@@ -276,6 +272,36 @@ export const CaseDetailModal: React.FC = () => {
                   </div>
                 )}
               </div>
+
+              {/* Evidence & Attached Photos */}
+              {selectedCase.imageUrls && selectedCase.imageUrls.length > 0 && (
+                <div className="bg-white rounded-lg border border-slate-200 p-4 space-y-3">
+                  <h3 className="font-bold text-slate-800 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                    <Paperclip className="w-4 h-4 text-emerald-600" />
+                    Attached Evidence / Photos
+                  </h3>
+                  <div className="flex flex-wrap gap-3">
+                    {selectedCase.imageUrls.map((url, i) => (
+                      <a 
+                        key={i} 
+                        href={url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="block rounded-lg overflow-hidden border border-slate-200 hover:border-emerald-500 transition shadow-xs w-32 h-32 sm:w-40 sm:h-40 bg-slate-50 relative group"
+                      >
+                        <img 
+                          src={url} 
+                          alt={`Evidence ${i + 1}`} 
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                          <span className="text-white text-xs font-bold bg-black/50 px-2 py-1 rounded">View Full</span>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Involved Parties Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

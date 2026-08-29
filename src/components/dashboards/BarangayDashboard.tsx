@@ -14,19 +14,18 @@ import {
   Car,
   Volume2
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { useAuth } from '../../hooks/useAuth';
+import { useCases } from '../../hooks/useCases';
+import { useNotifications } from '../../hooks/useNotifications';
+import { useUI } from '../../hooks/useUI';
 import { StatusBadge, PriorityBadge } from '../common/StatusBadge';
 import { formatDateShort } from '../../utils/reportGenerators';
 
 export const BarangayDashboard: React.FC = () => {
-  const { 
-    currentUser, 
-    cases, 
-    setIsNewCaseModalOpen, 
-    setSelectedCaseId, 
-    setActiveTab,
-    triggerNotification
-  } = useApp();
+  const { currentUser } = useAuth();
+  const { cases, setSelectedCaseId } = useCases();
+  const { triggerNotification } = useNotifications();
+  const { setIsNewCaseModalOpen, setActiveTab } = useUI();
 
   const currentBarangay = currentUser.barangay || 'San Aquilino';
 

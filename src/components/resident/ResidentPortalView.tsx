@@ -28,7 +28,11 @@ import {
   X,
   MessageSquare
 } from 'lucide-react';
-import { useApp } from '../../context/AppContext';
+import { supabase } from '../../utils/supabaseClient';
+import { useAuth } from '../../hooks/useAuth';
+import { useCases } from '../../hooks/useCases';
+import { useNotifications } from '../../hooks/useNotifications';
+import { useUI } from '../../hooks/useUI';
 import { 
   ROXAS_BARANGAYS, 
   IncidentCategory, 
@@ -42,14 +46,10 @@ import { StatusBadge, PriorityBadge } from '../common/StatusBadge';
 
 
 export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' | 'my_reports' | 'directory' }> = ({ initialTab = 'overview' }) => {
-  const { 
-    currentUser, 
-    cases, 
-    createCase, 
-    setSelectedCaseId, 
-    setActiveTab,
-    triggerNotification
-  } = useApp();
+  const { currentUser } = useAuth();
+  const { cases, createCase, setSelectedCaseId } = useCases();
+  const { triggerNotification } = useNotifications();
+  const { setActiveTab } = useUI();
 
   const [portalTab, setPortalTab] = useState<'overview' | 'submit' | 'my_reports' | 'directory'>(initialTab);
   
@@ -73,6 +73,7 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedSuccessCaseId, setSubmittedSuccessCaseId] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
 
 
@@ -101,7 +102,7 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
 
 
   // Submit Incident Report Form
-  const handleSubmitReport = (e: React.FormEvent) => {
+  const handleSubmitReport = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!reportTitle.trim()) {
@@ -118,6 +119,26 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
     }
 
     setIsSubmitting(true);
+
+    const uploadedImageUrls: string[] = [];
+    if (selectedFiles.length > 0) {
+      for (const file of selectedFiles) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+        const filePath = `${currentUser.id}/${fileName}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('report-images')
+          .upload(filePath, file);
+          
+        if (uploadError) {
+          console.error('Error uploading image:', uploadError);
+        } else {
+          const { data } = supabase.storage.from('report-images').getPublicUrl(filePath);
+          uploadedImageUrls.push(data.publicUrl);
+        }
+      }
+    }
 
     const complainantPerson: PersonInvolved = {
       id: `P-RES-${Date.now()}`,
@@ -183,7 +204,8 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
       barangayRetentionNotes: isAccidentReport 
         ? '🚨 ROAD ACCIDENT REPORT: Dispatched urgent alert to Punong Barangay and Tanod First Responders.' 
         : 'Citizen report received via B-CONNECT Resident Portal. Queued for Barangay Secretary / Lupon Tagapamayapa review.',
-      isConfidential: isAnonymous
+      isConfidential: isAnonymous,
+      imageUrls: uploadedImageUrls
     });
 
     setIsSubmitting(false);
@@ -196,6 +218,7 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
     setRespondentName('');
     setWitnessName('');
     setIsUrgent(false);
+    setSelectedFiles([]);
 
     triggerNotification(
       'Incident Report Submitted Successfully!',
@@ -562,6 +585,50 @@ export const ResidentPortalView: React.FC<{ initialTab?: 'overview' | 'submit' |
                   onChange={(e) => setReportNarrative(e.target.value)}
                   className="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3.5 text-xs text-slate-900 leading-relaxed focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
+              </div>
+
+              {/* 4. Photo / Evidence Upload */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-slate-800">
+                  Attach Photos / Evidence (Optional)
+                </label>
+                <div className="flex items-center gap-3">
+                  <label className="cursor-pointer flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold transition border border-slate-200">
+                    <Upload className="w-4 h-4 text-emerald-600" />
+                    <span>Choose Images</span>
+                    <input 
+                      type="file" 
+                      multiple 
+                      accept="image/*" 
+                      onChange={(e) => {
+                        if (e.target.files) {
+                          setSelectedFiles(Array.from(e.target.files));
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                  <span className="text-xs text-slate-500">
+                    {selectedFiles.length > 0 ? `${selectedFiles.length} file(s) selected` : 'No files chosen'}
+                  </span>
+                </div>
+                {selectedFiles.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {selectedFiles.map((f, i) => (
+                      <div key={i} className="px-2 py-1 bg-emerald-50 border border-emerald-200 text-[10px] text-emerald-800 rounded-md flex items-center gap-1 shadow-xs">
+                        <ImageIcon className="w-3 h-3" />
+                        <span className="truncate max-w-[100px]">{f.name}</span>
+                        <button 
+                          type="button" 
+                          onClick={() => setSelectedFiles(prev => prev.filter((_, idx) => idx !== i))}
+                          className="text-rose-500 hover:text-rose-700 ml-1 cursor-pointer"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* 5. Involved Persons & Anonymous Protection */}
